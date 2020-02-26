@@ -1,6 +1,5 @@
 import { ADD_ALERT, REMOVE_ALERT, CLEAR_ALERTS } from "../types";
-
-import { Action, Alerts } from "./IAlert";
+import { Alerts, Action } from "context";
 
 const AlertReducer = (state: Alerts, { type, payload }: Action): Alerts => {
   switch (type) {

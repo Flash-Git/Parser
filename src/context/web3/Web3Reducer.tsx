@@ -1,6 +1,5 @@
 import { SET_PROVIDER } from "../types";
-
-import { Action, Web3State } from "./IWeb3";
+import { Web3State, Action } from "context";
 
 const Web3Reducer = (
   state: Web3State,
