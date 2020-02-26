@@ -6,8 +6,6 @@ import Web3Reducer from "./Web3Reducer";
 
 import { SET_PROVIDER } from "../types";
 
-import {} from "./IWeb3";
-
 const Web3State: FC = props => {
   const initialState: any = { provider: null };
 
