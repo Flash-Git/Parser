@@ -1,12 +1,12 @@
 import React, { FC, useContext, useState } from "react";
 
-import { useMountEffect } from "functions/hooks";
+import { useMountEffect } from "utils/hooks";
 
 import { AddAlert, ClearAlerts } from "context/alert/IAlert";
 
 import AlertContext from "context/alert/AlertContext";
 
-const HelloWorld: FC = () => {
+const Home: FC = () => {
   const alertContext = useContext(AlertContext);
   const {
     addAlert,
@@ -39,4 +39,4 @@ const HelloWorld: FC = () => {
   );
 };
 
-export default HelloWorld;
+export default Home;

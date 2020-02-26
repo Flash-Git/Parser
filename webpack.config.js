@@ -9,9 +9,10 @@ module.exports = env => {
     resolve: {
       extensions: [".ts", ".tsx", ".js"],
       alias: {
+        pages: path.resolve(__dirname, "./src/pages/"),
         components: path.resolve(__dirname, "./src/components/"),
         context: path.resolve(__dirname, "./src/context/"),
-        functions: path.resolve(__dirname, "./src/functions/")
+        utils: path.resolve(__dirname, "./src/utils/")
       }
     },
     output: {
