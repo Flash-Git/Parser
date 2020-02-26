@@ -4,7 +4,6 @@ import { faInfoCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 import Alerts from "components/layout/Alerts";
-import Web3Connect from "components/layout/Web3Connect";
 
 import Home from "pages/Home";
 
@@ -20,7 +19,6 @@ const App: FC = () => (
     <Web3State>
       <Alerts />
       <Home />
-      <Web3Connect />
     </Web3State>
   </AlertState>
 );
