@@ -14,6 +14,8 @@ import "./App.css";
 
 library.add(faInfoCircle, faTimesCircle, faEthereum);
 
+const version = "0.1.0";
+
 const App: FC = () => (
   <AlertState>
     <Web3State>
