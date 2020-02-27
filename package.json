@@ -1,9 +1,10 @@
 {
   "name": "web3_parser",
   "version": "1.0.0",
+  "author": "J Quinn",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack-dev-server --mode development --env.development --open --hot",
+    "dev": "webpack-dev-server --mode development --env.development",
     "build": "webpack --mode production --env.production"
   },
   "dependencies": {
@@ -13,10 +14,12 @@
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
+    "@types/react-router-dom": "^5.1.3",
     "@types/uuid": "^3.4.7",
     "ethers": "^4.0.44",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-router-dom": "^5.1.2",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
