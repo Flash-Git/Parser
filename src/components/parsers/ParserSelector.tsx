@@ -1,8 +1,9 @@
 import React, { FC } from "react";
+import { setType } from "parsers";
 import { PARSER_TYPES } from "components/layout/Parser";
 
 interface Props {
-  setType: (type: PARSER_TYPES) => void;
+  setType: setType;
 }
 
 const ParserSelector: FC<Props> = ({ setType }) => {

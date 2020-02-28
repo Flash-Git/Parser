@@ -1,7 +1,8 @@
 import React, { FC } from "react";
+import { resetType } from "parsers";
 
 interface Props {
-  resetType: () => void;
+  resetType: resetType;
 }
 
 const ParserLookup: FC<Props> = ({ resetType }) => {
