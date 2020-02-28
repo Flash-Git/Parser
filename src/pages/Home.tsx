@@ -1,11 +1,11 @@
 import React, { FC, useContext, useState } from "react";
-import Web3Connect from "components/layout/Web3Connect";
+import Parser from "components/layout/Parser";
 
 const Home: FC = () => {
   return (
-    <div className="container flex col center">
+    <div className="container flex col center p-1">
       <h1>Transaction Parser</h1>
-      <Web3Connect />
+      <Parser />
     </div>
   );
 };
