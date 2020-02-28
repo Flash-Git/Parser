@@ -1,5 +1,10 @@
 declare module "context" {
-  import { Provider } from "ethers/providers";
+  import { Provider, EtherscanProvider } from "ethers/providers";
+
+  export type Action = {
+    payload?: any;
+    type: string;
+  };
 
   // Alert
   export type Alert = {
@@ -19,10 +24,17 @@ declare module "context" {
   export type ClearAlerts = () => void;
 
   // Web3
-  export type Action = {
-    payload?: any;
-    type: string;
-  };
+  export interface Web3State {
+    provider: Provider;
+    etherscanProvider: EtherscanProvider;
+  }
 
-  export type Web3State = { provider: Provider };
+  export type SetProvider = (provider: Provider) => void;
+
+  export type SetEtherscanProvider = (provider: EtherscanProvider) => void;
+
+  export interface Web3Context extends Web3State {
+    setProvider: SetProvider;
+    setEtherscanProvider: SetEtherscanProvider;
+  }
 }
