@@ -1,11 +1,12 @@
 import React, { FC, useState, FormEvent, useContext } from "react";
 import { resetType } from "parsers";
-import { Web3Context as IWeb3Context } from "context";
-import { useMountEffect } from "utils/hooks";
 import { ethers } from "ethers";
+import { TransactionResponse } from "ethers/providers";
+import { useMountEffect } from "utils/hooks";
+import { zeroPad } from "utils/misc";
+import { Web3Context as IWeb3Context } from "context";
 
 import Web3Context from "context/web3/Web3Context";
-import { TransactionResponse } from "ethers/providers";
 
 interface Props {
   resetType: resetType;
@@ -64,8 +65,12 @@ const ParserLookup: FC<Props> = ({ resetType }) => {
       <div className="m-2">
         {transactions.map((tx, index: number) => (
           <div key={index} style={{ width: "100%" }}>
-            {index}
-            <a href={`etherscan.com/io/${tx.hash}`}>{` - Hash: ${tx.hash}`}</a>
+            {zeroPad(index, 3)}
+            {" - Tx Hash: "}
+            <a href={`etherscan.com/io/${tx.hash}`}>{`${tx.hash.slice(
+              0,
+              5
+            )}...${tx.hash.slice(-5)}`}</a>
           </div>
         ))}
       </div>
