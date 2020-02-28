@@ -5,9 +5,14 @@ import { useMountEffect } from "utils/hooks";
 import { ethers } from "ethers";
 
 import Web3Context from "context/web3/Web3Context";
+import { TransactionResponse } from "ethers/providers";
 
 interface Props {
   resetType: resetType;
+}
+
+interface FixedTransactionResponse extends TransactionResponse {
+  creates?: string;
 }
 
 const ParserLookup: FC<Props> = ({ resetType }) => {
@@ -28,7 +33,7 @@ const ParserLookup: FC<Props> = ({ resetType }) => {
 
   const getTransactions = async () => {
     const history = await etherscanProvider.getHistory(address, 0, "latest");
-    const txs = history.map(tx => {
+    const txs = history.map((tx: FixedTransactionResponse) => {
       return { to: tx.to, creates: tx.creates, hash: tx.hash, data: tx.data };
     });
     setTransactions(txs);
