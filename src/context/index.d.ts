@@ -10,25 +10,19 @@ declare module "context" {
 
   export type Alerts = Alert[];
 
-  export interface AddAlert {
-    (
-      msg: string,
-      type: "primary" | "light" | "dark" | "danger" | "success" | "white",
-      timeout?: number
-    ): void;
-  }
+  export type AddAlert = (
+    msg: string,
+    type: "primary" | "light" | "dark" | "danger" | "success" | "white",
+    timeout?: number
+  ) => void;
 
-  export interface ClearAlerts {
-    (): void;
-  }
+  export type ClearAlerts = () => void;
 
   // Web3
-  export interface Action {
+  export type Action = {
     payload?: any;
     type: string;
-  }
+  };
 
-  export interface Web3State {
-    provider: Provider;
-  }
+  export type Web3State = { provider: Provider };
 }
