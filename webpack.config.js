@@ -44,6 +44,13 @@ module.exports = env => {
         "process.env.development": !!(env && !env.production)
       }),
       new ForkTsCheckerWebpackPlugin({ eslint: true })
-    ]
+    ],
+    devServer: {
+      publicPath: "/",
+      hot: true,
+      open: false,
+      port: 3000,
+      historyApiFallback: true
+    }
   };
 };
