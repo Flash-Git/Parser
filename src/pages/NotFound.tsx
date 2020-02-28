@@ -1,9 +1,9 @@
 import React, { FC } from "react";
 
 const NotFound: FC = () => (
-  <div className="container">
+  <div className="container flex col p-1">
     <h1>Not Found</h1>
-    <p className="lead">The page you are looking for does not exist.</p>
+    <p className="my-1 lead">The page you are looking for does not exist.</p>
   </div>
 );
 
