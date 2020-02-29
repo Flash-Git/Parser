@@ -490,7 +490,7 @@ select,
 textarea {
   display: block;
   width: 100%;
-  padding: 0.2rem;
+  padding: 0.2rem 0.4rem;
   font-size: 1.1rem;
   border: 1px solid #ccc;
 }
@@ -580,8 +580,12 @@ table th {
 
 /* Web3 */
 .address {
-  /* width: 24em; */
   max-width: 24em;
+}
+
+.block-num {
+  max-width: 5.3rem;
+  padding: 0.2rem 0.3rem;
 }
 
 /* Mobile Styles */
