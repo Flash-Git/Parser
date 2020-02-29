@@ -16,7 +16,7 @@ interface FixedTransactionResponse extends TransactionResponse {
   creates?: string;
 }
 
-const ParserLookup: FC<Props> = ({ resetType }) => {
+const ParserTxLookup: FC<Props> = ({ resetType }) => {
   const web3Context: IWeb3Context = useContext(Web3Context);
   const { etherscanProvider, setEtherscanProvider } = web3Context;
 
@@ -24,7 +24,7 @@ const ParserLookup: FC<Props> = ({ resetType }) => {
   const [address, setAddress] = useState("");
   const [receivingAddresses, setReceivingAddresses] = useState("");
   // const [topics, setTopics] = useState("transfer(address,uint256)");
-  const [startBlock, setStartBlock] = useState("9500000");
+  const [startBlock, setStartBlock] = useState("9500000"); // TODO accept date
 
   // Response
   const [transactions, setTransactions] = useState([]);
@@ -144,4 +144,4 @@ const ParserLookup: FC<Props> = ({ resetType }) => {
   );
 };
 
-export default ParserLookup;
+export default ParserTxLookup;
