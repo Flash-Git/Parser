@@ -66,27 +66,26 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
 
   return (
     <Fragment>
-      <form
-        className="col address m px-1"
-        style={{ display: "inline-flex" }}
-        onSubmit={onSubmit}
-      >
+      <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
         <div className="px">Address:</div>
         <input
           type="text"
           value={address}
+          className="address"
           onChange={e => setAddress(e.target.value)}
         />
         <div className="px">Spending Addresses:</div>
         <input
           type="text"
           value={receivingAddresses}
+          className="address"
           onChange={e => setReceivingAddresses(e.target.value)}
         />
         <div className="px">Starting Block:</div>
         <input
           type="text"
           value={startBlock}
+          className="block-num"
           onChange={e => setStartBlock(e.target.value)}
         />
         <div className="center text-center no-wrap">

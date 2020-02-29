@@ -7,7 +7,7 @@ interface Props {
 }
 
 const ParserSelector: FC<Props> = ({ setType }) => (
-  <div style={{ display: "inline-flex" }}>
+  <div style={{ display: "flex row" }}>
     <button className="btn mx" onClick={() => setType(PARSER_TYPES.txLookup)}>
       Tx Lookup
     </button>
