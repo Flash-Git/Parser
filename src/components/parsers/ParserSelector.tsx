@@ -9,8 +9,8 @@ interface Props {
 const ParserSelector: FC<Props> = ({ setType }) => {
   return (
     <div>
-      <button className="btn" onClick={() => setType(PARSER_TYPES.lookup)}>
-        One
+      <button className="btn" onClick={() => setType(PARSER_TYPES.txLookup)}>
+        Tx Lookup
       </button>
       <button className="btn">Two</button>
       <button className="btn">Three</button>
