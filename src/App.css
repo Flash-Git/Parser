@@ -302,25 +302,31 @@ img {
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-gap: 2rem;
+  gap: 2rem;
 }
 
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 1rem;
+  gap: 1rem;
 }
 
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-gap: 2rem;
+  gap: 1rem;
+}
+
+.grid-4-auto {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 1rem;
 }
 
 .grid-2-3 {
   display: grid;
   grid-template-columns: 2fr 3fr;
-  grid-gap: 2rem;
+  gap: 2rem;
 }
 
 .btn {
@@ -557,6 +563,11 @@ table th {
 .item-exit-active {
   opacity: 0;
   transition: opacity 200ms ease-in;
+}
+
+/* Web3 */
+.address {
+  width: "24em";
 }
 
 /* Mobile Styles */
