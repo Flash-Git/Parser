@@ -67,7 +67,7 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
   return (
     <Fragment>
       <form
-        className="col address m mx-2 px-1"
+        className="col address m px-1"
         style={{ display: "inline-flex" }}
         onSubmit={onSubmit}
       >
@@ -99,7 +99,7 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
         </div>
       </form>
       <div
-        className="m-2 px-1"
+        className="my-2 px-1"
         style={{
           display: "grid",
           gridTemplateColumns: "0.5fr 0.5fr 7fr 5fr",
