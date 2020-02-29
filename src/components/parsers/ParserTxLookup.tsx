@@ -21,9 +21,9 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
   const { etherscanProvider, setEtherscanProvider } = web3Context;
 
   // Input
-  const [address, setAddress] = useState("");
+  const [addresses, setAddresses] = useState("");
   const [receivingAddresses, setReceivingAddresses] = useState("");
-  const [startBlock, setStartBlock] = useState("9500000"); // TODO accept date
+  const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
 
   // Response
   const [transactions, setTransactions] = useState([]);
@@ -35,31 +35,44 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
   useMountEffect(() => updateEtherscanProvider());
 
   const getTransactions = async () => {
-    const history = await etherscanProvider.getHistory(
-      address,
-      startBlock,
-      "latest"
-    );
+    const histories: Promise<TransactionResponse[]>[] = [];
 
-    const filteredTxs = history.filter((tx: FixedTransactionResponse) =>
-      receivingAddresses
-        .replace(/\s/g, "")
-        .split(",")
-        .some(add => add.toLowerCase() === tx.to?.toLowerCase())
-    );
+    setTransactions([]);
 
-    const txs = filteredTxs.map((tx: FixedTransactionResponse) => {
-      return {
-        to: tx.to,
-        creates: tx.creates,
-        hash: tx.hash,
-        value: tx.value,
-        blockNumber: tx.blockNumber,
-        timestamp: tx.timestamp
-      };
+    addresses
+      .replace(/\s/g, "")
+      .split(",")
+      .map(address =>
+        histories.push(
+          etherscanProvider.getHistory(address, startBlock, "latest")
+        )
+      );
+
+    // histories.sort(history)
+    await histories.map(async history => {
+      const filteredTxs = await (await history).filter(
+        (tx: FixedTransactionResponse) =>
+          receivingAddresses
+            .replace(/\s/g, "")
+            .split(",")
+            .some(add => add.toLowerCase() === tx.to?.toLowerCase())
+      );
+
+      setTransactions(txs => [...txs, ...filteredTxs]);
     });
 
-    setTransactions(txs);
+    // const txs = filteredTxs.map((tx: FixedTransactionResponse) => {
+    //   return {
+    //     to: tx.to,
+    //     creates: tx.creates,
+    //     hash: tx.hash,
+    //     value: tx.value,
+    //     blockNumber: tx.blockNumber,
+    //     timestamp: tx.timestamp
+    //   };
+    // });
+
+    // setTransactions(txs);
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -70,15 +83,16 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
   return (
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
-        <div className="px">Address:</div>
-        <input
-          type="text"
-          value={address}
-          className="address text-center"
-          onChange={e => setAddress(e.target.value)}
+        <div className="px">Your Addresses:</div>
+
+        <textarea
+          rows={4}
+          value={addresses}
+          onChange={e => setAddresses(e.target.value)}
+          style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
 
-        <div className="px">Spending Addresses:</div>
+        <div className="px">Receiving Addresses:</div>
         <textarea
           rows={4}
           value={receivingAddresses}
@@ -138,3 +152,10 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
 };
 
 export default ParserTxLookup;
+
+// <input
+// type="text"
+// value={addresses}
+// className="address text-center"
+// onChange={e => setAddresses(e.target.value)}
+// />
