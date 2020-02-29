@@ -22,8 +22,6 @@ const Parser: FC = () => {
     default:
       throw new Error(`Unhandled parser type: ${type}`);
   }
-
-  return <div>Parser</div>;
 };
 
 export default Parser;
