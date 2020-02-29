@@ -71,21 +71,21 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
         <input
           type="text"
           value={address}
-          className="address"
+          className="address text-center"
           onChange={e => setAddress(e.target.value)}
         />
         <div className="px">Spending Addresses:</div>
         <input
           type="text"
           value={receivingAddresses}
-          className="address"
+          className="address text-center"
           onChange={e => setReceivingAddresses(e.target.value)}
         />
         <div className="px">Starting Block:</div>
         <input
           type="text"
           value={startBlock}
-          className="block-num"
+          className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
         />
         <div className="center text-center no-wrap">
