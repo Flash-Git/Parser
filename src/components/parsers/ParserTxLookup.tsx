@@ -41,21 +41,25 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
       "latest"
     );
 
-    console.log(receivingAddresses.replace(/\s/g, "").split(","));
-
     const filteredTxs = history.filter((tx: FixedTransactionResponse) =>
       receivingAddresses
         .replace(/\s/g, "")
         .split(",")
-        .some(add => add.toLowerCase() === tx.to.toLowerCase())
+        .some(add => add.toLowerCase() === tx.to?.toLowerCase())
     );
 
     const txs = filteredTxs.map((tx: FixedTransactionResponse) => {
-      return { to: tx.to, creates: tx.creates, hash: tx.hash, data: tx.data };
+      return {
+        to: tx.to,
+        creates: tx.creates,
+        hash: tx.hash,
+        value: tx.value,
+        blockNumber: tx.blockNumber,
+        timestamp: tx.timestamp
+      };
     });
 
-    setTransactions(filteredTxs);
-    console.log(filteredTxs);
+    setTransactions(txs);
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -103,11 +107,12 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
         className="my-2 px-1"
         style={{
           display: "grid",
-          gridTemplateColumns: "0.5fr 0.5fr 7fr 5fr",
+          gridTemplateColumns: "0.5fr 0.5fr 9fr 5fr 7fr",
           gap: "1rem",
           textAlign: "left",
-          maxWidth: "30rem",
-          alignSelf: "center"
+          maxWidth: "40rem",
+          alignSelf: "center",
+          fontSize: "0.85rem"
         }}
       >
         {transactions.map((tx, index: number) => (
@@ -124,6 +129,7 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
             <div>
               {`Value: ${utils.formatUnits(tx.value, "ether").substr(0, 8)}`}
             </div>
+            <div>{new Date(tx.timestamp * 1000).toDateString()}</div>
           </Fragment>
         ))}
       </div>
