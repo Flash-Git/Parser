@@ -57,6 +57,11 @@ img {
 .center {
   justify-content: center;
   align-items: center;
+  text-align: center;
+}
+
+.basis {
+  flex-basis: 24em;
 }
 
 .grow {
@@ -73,6 +78,14 @@ img {
 
 .no-shrink {
   flex-shrink: 0;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.no-wrap {
+  flex-wrap: nowrap;
 }
 
 /* Utilities */
@@ -567,7 +580,8 @@ table th {
 
 /* Web3 */
 .address {
-  width: "24em";
+  /* width: 24em; */
+  max-width: 24em;
 }
 
 /* Mobile Styles */
