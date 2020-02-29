@@ -1,10 +1,10 @@
 import React, { FC, useState } from "react";
-import ParserSelector from "components/parsers/ParserSelector";
-import ParserLookup from "components/parsers/ParserLookup";
+import Selector from "components/parsers/ParserSelector";
+import TxLookup from "components/parsers/ParserTxLookup";
 
 export enum PARSER_TYPES {
   undefined,
-  lookup
+  txLookup
 }
 
 const Parser: FC = () => {
@@ -16,9 +16,9 @@ const Parser: FC = () => {
 
   switch (type) {
     case PARSER_TYPES.undefined:
-      return <ParserSelector setType={setType} />;
-    case PARSER_TYPES.lookup:
-      return <ParserLookup resetType={resetType} />;
+      return <Selector setType={setType} />;
+    case PARSER_TYPES.txLookup:
+      return <TxLookup resetType={resetType} />;
     default:
       throw new Error(`Unhandled parser type: ${type}`);
   }
