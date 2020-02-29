@@ -491,8 +491,9 @@ textarea {
   display: block;
   width: 100%;
   padding: 0.2rem 0.4rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   border: 1px solid #ccc;
+  margin: 1rem 0;
 }
 
 input[type="submit"],
@@ -581,10 +582,12 @@ table th {
 /* Web3 */
 .address {
   max-width: 24em;
+  min-width: 6em;
 }
 
 .block-num {
   max-width: 5.3rem;
+  min-width: 5.3em;
   padding: 0.2rem 0.3rem;
 }
 

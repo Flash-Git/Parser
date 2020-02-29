@@ -27,7 +27,6 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
 
   // Response
   const [transactions, setTransactions] = useState([]);
-  const [logs, setLogs] = useState([]);
 
   const updateEtherscanProvider = () => {
     setEtherscanProvider(new ethers.providers.EtherscanProvider());
@@ -74,13 +73,15 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
           className="address text-center"
           onChange={e => setAddress(e.target.value)}
         />
+
         <div className="px">Spending Addresses:</div>
-        <input
-          type="text"
+        <textarea
+          rows={4}
           value={receivingAddresses}
-          className="address text-center"
           onChange={e => setReceivingAddresses(e.target.value)}
+          style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
+
         <div className="px">Starting Block:</div>
         <input
           type="text"
@@ -88,6 +89,7 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
         />
+
         <div className="center text-center no-wrap">
           <button className="btn m" type="submit">
             Lookup
@@ -103,7 +105,9 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
           display: "grid",
           gridTemplateColumns: "0.5fr 0.5fr 7fr 5fr",
           gap: "1rem",
-          textAlign: "left"
+          textAlign: "left",
+          maxWidth: "30rem",
+          alignSelf: "center"
         }}
       >
         {transactions.map((tx, index: number) => (
