@@ -16,7 +16,9 @@ const ParserTxLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
   const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
 
   // Response
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
+    []
+  );
 
   const getTransactions = async () => {
     const histories: Promise<TransactionResponse[]>[] = [];
