@@ -2,7 +2,7 @@ import React, { FC, useState, FormEvent, Fragment } from "react";
 import { resetType, FixedTransactionResponse } from "parsers";
 import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
-import { zeroPad } from "utils/misc";
+import { zeroPad, isAddress, isENS } from "utils/misc";
 import { AddAlert } from "context";
 
 interface Props {
@@ -67,24 +67,24 @@ const ParserTxLookup: FC<Props> = ({
 
   const validateInput = async () => {
     const validateAddress = async (address: string) => {
-      try {
-        utils.getAddress(address);
-        return true;
-      } catch (e) {
-        if (await etherscanProvider.resolveName(address)) return true;
-        return false;
-      }
+      if (isAddress(address)) return true;
+      if (await isENS(etherscanProvider, address)) return true;
+      return false;
     };
 
     const validAddresses = await Promise.all(
-      splitAddresses(addresses).map(async address => {
-        if (!(await validateAddress(address))) return null;
-        return address;
-      })
+      splitAddresses(addresses)
+        .map(async address => {
+          if (await validateAddress(address)) return address;
+          addAlert(`Failed to validate ${address}`, "danger");
+          return null;
+        })
+        .filter(address => {
+          if (address !== null) return true;
+        })
     );
 
-    console.log(validAddresses);
-    return false;
+    return validAddresses.length === addresses.length;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
