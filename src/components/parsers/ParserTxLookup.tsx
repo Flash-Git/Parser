@@ -21,8 +21,13 @@ const ParserTxLookup: FC<Props> = ({
    */
 
   const [addresses, setAddresses] = useState("");
+  const [addressErrors, setAddressesErrors] = useState("");
+
   const [receivingAddresses, setReceivingAddresses] = useState("");
+  const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
+
   const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
+  const [startBlockError, setStartBlockError] = useState("");
 
   /*
    * State
@@ -71,17 +76,36 @@ const ParserTxLookup: FC<Props> = ({
       return false;
     };
 
-    const validAddresses = await Promise.all(
-      splitAddresses(addresses)
-        .map(async address => {
-          if (await validateAddress(address)) return address;
-          addAlert(`Failed to validate "${address}"`, "danger");
-          return null;
-        })
-        .filter(address => address !== null)
-    );
+    const checkedAddresses = async (addresses: string) => {
+      if (splitAddresses(addresses).length === 0) return [];
 
-    return validAddresses.length === addresses.length;
+      return Promise.all(
+        splitAddresses(addresses)
+          .map(async address => {
+            if (address.length === 0) return null;
+
+            if (await validateAddress(address)) return address;
+            addAlert(`Failed to validate "${address}"`, "danger");
+            return null;
+          })
+          .filter(address => address !== null)
+      );
+    };
+
+    const checkedBlock = (block: string) => {
+      if (block.match(/^\d{0,8}$/g)) return true;
+      addAlert(`Failed to validate "${block}" as a block number`, "danger");
+      return false;
+    };
+
+    const validAddresses = await checkedAddresses(addresses);
+    const validReceivingAddresses = await checkedAddresses(receivingAddresses);
+    const validStartBlock = checkedBlock(startBlock);
+
+    if (validAddresses.length !== addresses.length) return false;
+    if (validReceivingAddresses.length !== validReceivingAddresses.length)
+      return false;
+    return validStartBlock;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
