@@ -16,46 +16,75 @@ const ParserTxLookup: FC<Props> = ({
   etherscanProvider,
   addAlert
 }) => {
-  // Input
+  /*
+   * Input
+   */
+
   const [addresses, setAddresses] = useState("");
   const [receivingAddresses, setReceivingAddresses] = useState("");
   const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
 
-  // Response
+  /*
+   * State
+   */
+
   const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
     []
   );
+
+  /*
+   * Methods
+   */
+
+  const splitAddresses = (addresses: string) => {
+    return addresses.replace(/\s/g, "").split(",");
+  };
 
   const getTransactions = async () => {
     const histories: Promise<TransactionResponse[]>[] = [];
 
     setTransactions([]);
 
-    addresses
-      .replace(/\s/g, "")
-      .split(",")
-      .map(address =>
-        histories.push(
-          etherscanProvider.getHistory(address, startBlock, "latest")
-        )
-      );
+    splitAddresses(addresses).map(address =>
+      histories.push(
+        etherscanProvider.getHistory(address, startBlock, "latest")
+      )
+    );
 
     // histories.sort(history) TODO
     await histories.map(async history => {
-      const filteredTxs = await (await history).filter(
-        (tx: FixedTransactionResponse) =>
-          receivingAddresses
-            .replace(/\s/g, "")
-            .split(",")
-            .some(add => add.toLowerCase() === tx.to?.toLowerCase())
+      const filteredTxs = await (
+        await history
+      ).filter((tx: FixedTransactionResponse) =>
+        splitAddresses(receivingAddresses).some(
+          add => add.toLowerCase() === tx.to?.toLowerCase()
+        )
       );
 
       setTransactions(txs => [...txs, ...filteredTxs]);
     });
   };
 
-  const validateInput = () => {
-    return true;
+  const validateInput = async () => {
+    const validateAddress = async (address: string) => {
+      try {
+        utils.getAddress(address);
+        return true;
+      } catch (e) {
+        if (await etherscanProvider.resolveName(address)) return true;
+        return false;
+      }
+    };
+
+    const validAddresses = await Promise.all(
+      splitAddresses(addresses).map(async address => {
+        if (!(await validateAddress(address))) return null;
+        return address;
+      })
+    );
+
+    console.log(validAddresses);
+    return false;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
