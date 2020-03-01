@@ -36,9 +36,8 @@ const ParserTxLookup: FC<Props> = ({
    * Methods
    */
 
-  const splitAddresses = (addresses: string) => {
-    return addresses.replace(/\s/g, "").split(",");
-  };
+  const splitAddresses = (addresses: string) =>
+    addresses.replace(/[^a-zA-Z.,;]/g, "").split(/[,;]/g);
 
   const getTransactions = async () => {
     const histories: Promise<TransactionResponse[]>[] = [];
@@ -76,7 +75,7 @@ const ParserTxLookup: FC<Props> = ({
       splitAddresses(addresses)
         .map(async address => {
           if (await validateAddress(address)) return address;
-          addAlert(`Failed to validate ${address}`, "danger");
+          addAlert(`Failed to validate "${address}"`, "danger");
           return null;
         })
         .filter(address => {
@@ -165,10 +164,3 @@ const ParserTxLookup: FC<Props> = ({
 };
 
 export default ParserTxLookup;
-
-// <input
-// type="text"
-// value={addresses}
-// className="address text-center"
-// onChange={e => setAddresses(e.target.value)}
-// />
