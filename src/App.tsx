@@ -1,7 +1,11 @@
 import React, { FC } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { faInfoCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faInfoCircle,
+  faTimesCircle,
+  faExclamationCircle
+} from "@fortawesome/free-solid-svg-icons";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import "./App.css";
 
@@ -13,7 +17,7 @@ import NotFound from "pages/NotFound";
 import AlertState from "context/alert/AlertState";
 import Web3State from "context/web3/Web3State";
 
-library.add(faInfoCircle, faTimesCircle, faEthereum);
+library.add(faInfoCircle, faTimesCircle, faExclamationCircle, faEthereum);
 
 const version = "0.1.0";
 
