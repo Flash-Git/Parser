@@ -1,25 +1,15 @@
-import React, { FC, useState, FormEvent, useContext, Fragment } from "react";
-import { resetType } from "parsers";
-import { ethers, utils } from "ethers";
-import { TransactionResponse } from "ethers/providers";
-import { useMountEffect } from "utils/hooks";
+import React, { FC, useState, FormEvent, Fragment } from "react";
+import { resetType, FixedTransactionResponse } from "parsers";
+import { utils } from "ethers";
+import { TransactionResponse, EtherscanProvider } from "ethers/providers";
 import { zeroPad } from "utils/misc";
-import { Web3Context as IWeb3Context } from "context";
-
-import Web3Context from "context/web3/Web3Context";
 
 interface Props {
   resetType: resetType;
+  etherscanProvider: EtherscanProvider;
 }
 
-interface FixedTransactionResponse extends TransactionResponse {
-  creates?: string;
-}
-
-const ParserTxLookup: FC<Props> = ({ resetType }) => {
-  const web3Context: IWeb3Context = useContext(Web3Context);
-  const { etherscanProvider, setEtherscanProvider } = web3Context;
-
+const ParserTxLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
   // Input
   const [addresses, setAddresses] = useState("");
   const [receivingAddresses, setReceivingAddresses] = useState("");
@@ -27,12 +17,6 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
 
   // Response
   const [transactions, setTransactions] = useState([]);
-
-  const updateEtherscanProvider = () => {
-    setEtherscanProvider(new ethers.providers.EtherscanProvider());
-  };
-
-  useMountEffect(() => updateEtherscanProvider());
 
   const getTransactions = async () => {
     const histories: Promise<TransactionResponse[]>[] = [];
@@ -48,7 +32,7 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
         )
       );
 
-    // histories.sort(history)
+    // histories.sort(history) TODO
     await histories.map(async history => {
       const filteredTxs = await (await history).filter(
         (tx: FixedTransactionResponse) =>
@@ -108,7 +92,7 @@ const ParserTxLookup: FC<Props> = ({ resetType }) => {
           onChange={e => setStartBlock(e.target.value)}
         />
 
-        <div className="center text-center no-wrap">
+        <div className="center text-center">
           <button className="btn m" type="submit">
             Lookup
           </button>
