@@ -57,11 +57,35 @@ img {
 .center {
   justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
-.grow-shrink {
+.basis {
+  flex-basis: 24em;
+}
+
+.grow {
   flex-grow: 1;
+}
+
+.shrink {
   flex-shrink: 1;
+}
+
+.no-grow {
+  flex-grow: 0;
+}
+
+.no-shrink {
+  flex-shrink: 0;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.no-wrap {
+  flex-wrap: nowrap;
 }
 
 /* Utilities */
@@ -186,6 +210,14 @@ img {
   padding-top: 1rem;
 }
 
+.pbot {
+  padding-bottom: 0.5rem;
+}
+
+.pbot-1 {
+  padding-bottom: 1rem;
+}
+
 /* Margin */
 .m {
   margin: 0.5rem;
@@ -283,25 +315,31 @@ img {
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-gap: 2rem;
+  gap: 2rem;
 }
 
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 1rem;
+  gap: 1rem;
 }
 
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-gap: 2rem;
+  gap: 1rem;
+}
+
+.grid-4-auto {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 1rem;
 }
 
 .grid-2-3 {
   display: grid;
   grid-template-columns: 2fr 3fr;
-  grid-gap: 2rem;
+  gap: 2rem;
 }
 
 .btn {
@@ -452,9 +490,10 @@ select,
 textarea {
   display: block;
   width: 100%;
-  padding: 0.2rem;
-  font-size: 1.1rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 1rem;
   border: 1px solid #ccc;
+  margin: 1rem 0;
 }
 
 input[type="submit"],
@@ -538,6 +577,18 @@ table th {
 .item-exit-active {
   opacity: 0;
   transition: opacity 200ms ease-in;
+}
+
+/* Web3 */
+.address {
+  max-width: 24em;
+  min-width: 6em;
+}
+
+.block-num {
+  max-width: 5.3rem;
+  min-width: 5.3em;
+  padding: 0.2rem 0.3rem;
 }
 
 /* Mobile Styles */

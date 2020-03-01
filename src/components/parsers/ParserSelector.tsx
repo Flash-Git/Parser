@@ -1,20 +1,19 @@
 import React, { FC } from "react";
+import { setType } from "parsers";
 import { PARSER_TYPES } from "components/layout/Parser";
 
 interface Props {
-  setType: (type: PARSER_TYPES) => void;
+  setType: setType;
 }
 
-const ParserSelector: FC<Props> = ({ setType }) => {
-  return (
-    <div>
-      <button className="btn" onClick={() => setType(PARSER_TYPES.lookup)}>
-        One
-      </button>
-      <button className="btn">Two</button>
-      <button className="btn">Three</button>
-    </div>
-  );
-};
-
+const ParserSelector: FC<Props> = ({ setType }) => (
+  <div style={{ display: "flex row" }}>
+    <button className="btn m" onClick={() => setType(PARSER_TYPES.txLookup)}>
+      Tx Lookup
+    </button>
+    <button className="btn m" onClick={() => setType(PARSER_TYPES.eventLookup)}>
+      Event Lookup
+    </button>
+  </div>
+);
 export default ParserSelector;
