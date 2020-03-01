@@ -52,23 +52,15 @@ const ParserTxLookup: FC<Props> = ({
 
       setTransactions(txs => [...txs, ...filteredTxs]);
     });
+  };
 
-    // const txs = filteredTxs.map((tx: FixedTransactionResponse) => {
-    //   return {
-    //     to: tx.to,
-    //     creates: tx.creates,
-    //     hash: tx.hash,
-    //     value: tx.value,
-    //     blockNumber: tx.blockNumber,
-    //     timestamp: tx.timestamp
-    //   };
-    // });
-
-    // setTransactions(txs);
+  const validateInput = () => {
+    return true;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validateInput()) return;
     getTransactions();
   };
 
