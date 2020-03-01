@@ -3,13 +3,19 @@ import { resetType } from "parsers";
 import { ethers } from "ethers";
 import { EtherscanProvider } from "ethers/providers";
 import { zeroPad } from "utils/misc";
+import { AddAlert } from "context";
 
 interface Props {
   resetType: resetType;
   etherscanProvider: EtherscanProvider;
+  addAlert: AddAlert;
 }
 
-const ParserEventLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
+const ParserEventLookup: FC<Props> = ({
+  resetType,
+  etherscanProvider,
+  addAlert
+}) => {
   // Input
   const [address, setAddress] = useState("");
   // const [receivingAddresses, setReceivingAddresses] = useState("");
