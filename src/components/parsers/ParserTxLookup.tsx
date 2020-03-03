@@ -117,22 +117,22 @@ const ParserTxLookup: FC<Props> = ({
     async (
       addresses: string,
       setErrors: (errors: string) => void,
-      allowEmpty = false
+      optional = false
     ) => {
       setErrors("");
 
       // Empty input
       if (addresses.length === 0) {
-        if (allowEmpty) return true;
+        if (optional) return true;
         setErrors("Required Field");
         return false;
       }
 
       const splitAdds = splitAddresses(addresses);
 
-      // EMPTY input
+      // EMPTY input after parsing
       if (splitAdds.length === 0) {
-        setErrors("Need valid address or ens name");
+        setErrors("Invalid characters");
         return false;
       }
 
@@ -172,6 +172,16 @@ const ParserTxLookup: FC<Props> = ({
     [etherscanProvider]
   );
 
+  const validateBlock = useCallback(
+    (block: string, setErrors: (errors: string) => void, optional = false) => {
+      setErrors("");
+      if (block.match(/^\d{0,8}$/g)) return true;
+      setErrors("Invalid block number");
+      return false;
+    },
+    []
+  );
+
   useEffect(() => {
     const val = ++addressesCount.current;
     setTimeout(async () => {
@@ -203,12 +213,11 @@ const ParserTxLookup: FC<Props> = ({
     setTimeout(async () => {
       if (startBlockCount.current !== val) return;
 
-      // const isValid = await validateAddresses(addresses);
       startBlockCount.current = 0;
-      const isValid = true; // TODO
+      const isValid = validateBlock(startBlock, setStartBlockError);
       setStartBlockValid(isValid);
     }, 700);
-  }, [startBlock, validateAddresses]);
+  }, [startBlock, validateBlock]);
 
   const Error: FC<{ msg: string }> = ({ msg }) => {
     return (
@@ -259,7 +268,7 @@ const ParserTxLookup: FC<Props> = ({
             Lookup
           </button>
           <button className="btn m" onClick={() => resetType()}>
-            Reset Parser
+            Reset
           </button>
         </div>
       </form>
