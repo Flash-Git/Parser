@@ -1,4 +1,11 @@
-import React, { FC, useState, FormEvent, Fragment } from "react";
+import React, {
+  FC,
+  useState,
+  FormEvent,
+  Fragment,
+  useEffect,
+  useRef
+} from "react";
 import { resetType, FixedTransactionResponse } from "parsers";
 import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
@@ -21,6 +28,7 @@ const ParserTxLookup: FC<Props> = ({
    */
 
   const [addresses, setAddresses] = useState("");
+  const [addressesValid, setAddressesValid] = useState(true);
   const [addressesErrors, setAddressesErrors] = useState("");
 
   const [receivingAddresses, setReceivingAddresses] = useState("");
@@ -125,6 +133,80 @@ const ParserTxLookup: FC<Props> = ({
     if (!validateInput()) return;
     getTransactions();
   };
+
+  const addressesCount = useRef(0);
+  const receivingAddressesCount = useRef(0);
+  const startBlockCount = useRef(0);
+
+  const validateAddress = async (address: string) => {
+    if (address.length === 0) return false;
+    if (isAddress(address)) return true;
+    if (await isENS(etherscanProvider, address)) return true;
+    return false;
+  };
+
+  const validateAddresses = async (addresses: string) => {
+    setAddressesErrors("");
+
+    if (addresses.length === 0) {
+      setAddressesErrors("Required Field");
+      //empty input
+      return false;
+    }
+
+    const splitAdds = splitAddresses(addresses);
+
+    if (splitAdds.length === 0) {
+      setAddressesErrors("Need valid address or ens name");
+      //empty input
+      return false;
+    }
+
+    const parsedAdds = await Promise.all(
+      splitAdds.map(async address => {
+        if (address.length === 0) {
+          //empty input
+          return null;
+        }
+
+        const isValid = await validateAddress(address);
+        if (!isValid) {
+          // INVALID
+          return null;
+        }
+
+        // VALID
+        return address;
+      })
+    );
+
+    if (parsedAdds.some(address => address === null)) {
+      setAddressesErrors("One or more addresses is invalid");
+      // Contains invalid address
+      return false;
+    }
+
+    return true;
+  };
+
+  useEffect(() => {
+    const val = ++addressesCount.current;
+    setTimeout(async () => {
+      if (addressesCount.current !== val) return;
+
+      const isValid = await validateAddresses(addresses);
+      setAddressesValid(isValid);
+      addressesCount.current = 0;
+    }, 1000);
+  }, [addresses]);
+
+  // useEffect(() => {
+
+  // }, [receivingAddresses])
+
+  // useEffect(() => {
+
+  // }, [startBlock])
 
   const Error: FC<{ msg: string }> = ({ msg }) => {
     return (
