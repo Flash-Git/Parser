@@ -10,7 +10,7 @@ import React, {
 import { resetType, FixedTransactionResponse } from "parsers";
 import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
-import { zeroPad, isAddress, isENS } from "utils/misc";
+import { zeroPad, isAddress, isENS, validateAddress } from "utils/misc";
 import { AddAlert } from "context";
 
 interface Props {
@@ -136,37 +136,18 @@ const ParserTxLookup: FC<Props> = ({
         return false;
       }
 
-      const parsedAdds = await Promise.all(
-        splitAdds.map(async address => {
+      if (
+        await splitAdds.some(async address => {
           // EMPTY address
-          if (address.length === 0) {
-            return null;
-          }
-
-          const validateAddress = async (address: string) => {
-            if (address.length === 0) return false;
-            if (isAddress(address)) return true;
-            if (await isENS(etherscanProvider, address)) return true;
-            return false;
-          };
-
-          const isValid = await validateAddress(address);
-          if (!isValid) {
-            // INVALID address
-            return null;
-          }
-
-          // VALID address
-          return address;
+          if (address.length === 0) return true;
+          // INVALID address
+          if (!(await validateAddress(address, etherscanProvider))) return true;
+          return false;
         })
-      );
-
-      if (parsedAdds.some(address => address === null)) {
-        setErrors("One or more addresses is invalid");
-        // Contains invalid address
+      ) {
+        setErrors("Invalid addresses");
         return false;
       }
-
       return true;
     },
     [etherscanProvider]
@@ -175,6 +156,12 @@ const ParserTxLookup: FC<Props> = ({
   const validateBlock = useCallback(
     (block: string, setErrors: (errors: string) => void, optional = false) => {
       setErrors("");
+      if (block.length === 0) {
+        if (optional) return true;
+        setErrors("Required Field");
+        return false;
+      }
+
       if (block.match(/^\d{0,8}$/g)) return true;
       setErrors("Invalid block number");
       return false;
