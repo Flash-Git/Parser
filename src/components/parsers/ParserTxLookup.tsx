@@ -37,7 +37,7 @@ const ParserTxLookup: FC<Props> = ({
   const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
 
   const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
-  const [startBlockValid, setStartBlockValid] = useState(false);
+  const [startBlockValid, setStartBlockValid] = useState(true);
   const [startBlockError, setStartBlockError] = useState("");
 
   /*
@@ -48,6 +48,12 @@ const ParserTxLookup: FC<Props> = ({
     []
   );
 
+  const [submitted, setSubmitted] = useState(false);
+
+  const addressesCount = useRef(0);
+  const receivingAddressesCount = useRef(0);
+  const startBlockCount = useRef(0);
+
   /*
    * Methods
    */
@@ -57,7 +63,6 @@ const ParserTxLookup: FC<Props> = ({
 
   const getTransactions = async () => {
     const histories: Promise<TransactionResponse[]>[] = [];
-
     setTransactions([]);
 
     splitAddresses(addresses).map(address =>
@@ -66,8 +71,16 @@ const ParserTxLookup: FC<Props> = ({
       )
     );
 
+    // TODO add options for incoming, outgoing or both
     // histories.sort(history) TODO
     await histories.map(async history => {
+      // If no receiving addresses are given get all transactions
+      if (receivingAddresses.length === 0) {
+        const unfilteredTxs = await history;
+        setTransactions(txs => [...txs, ...unfilteredTxs]);
+        return history;
+      }
+
       const filteredTxs = await (
         await history
       ).filter((tx: FixedTransactionResponse) =>
@@ -75,95 +88,58 @@ const ParserTxLookup: FC<Props> = ({
           add => add.toLowerCase() === tx.to?.toLowerCase()
         )
       );
-
       setTransactions(txs => [...txs, ...filteredTxs]);
+      return history;
     });
-  };
-
-  const validateInput = async () => {
-    const validateAddress = async (address: string) => {
-      if (isAddress(address)) return true;
-      if (await isENS(etherscanProvider, address)) return true;
-      return false;
-    };
-
-    const checkedAddresses = async (addresses: string) => {
-      if (splitAddresses(addresses).length === 0) return [];
-
-      const checkedAdds = await Promise.all(
-        splitAddresses(addresses).map(async address => {
-          if (address.length === 0) return null;
-
-          if (await validateAddress(address)) return address;
-          addAlert(`Failed to validate "${address}"`, "danger");
-          return null;
-        })
-      );
-      return checkedAdds.filter(address => address !== null);
-    };
-
-    const checkedBlock = (block: string) => {
-      if (block.match(/^\d{0,8}$/g)) return true;
-      addAlert(`Failed to validate "${block}" as a block number`, "danger");
-      return false;
-    };
-
-    const validAddresses = await checkedAddresses(addresses);
-    const validReceivingAddresses = await checkedAddresses(receivingAddresses);
-    const validStartBlock = checkedBlock(startBlock);
-
-    if (validAddresses.length !== splitAddresses(addresses).length) {
-      setAddressesErrors("Failed to validate addresses.");
-      return false;
-    } else setAddressesErrors("");
-    if (
-      validReceivingAddresses.length !==
-      splitAddresses(receivingAddresses).length
-    ) {
-      setReceivingAddressesErrors("Failed to validate receiving addresses.");
-
-      return false;
-    } else setReceivingAddressesErrors("");
-    if (!validStartBlock) {
-      setStartBlockError("Failed to validate starting block number.");
-      return false;
-    } else setStartBlockError("");
-    return true;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validateInput()) return;
+
+    if (
+      addressesCount.current !== 0 ||
+      receivingAddressesCount.current !== 0 ||
+      startBlockCount.current !== 0
+    ) {
+      console.log("Still validating inputs");
+      return;
+    }
+
+    setSubmitted(true);
+
+    if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
+
     getTransactions();
   };
 
-  const addressesCount = useRef(0);
-  const receivingAddressesCount = useRef(0);
-  const startBlockCount = useRef(0);
-
   // TODO check for duplicates
   const validateAddresses = useCallback(
-    async (addresses: string, setErrors: (errors: string) => void) => {
+    async (
+      addresses: string,
+      setErrors: (errors: string) => void,
+      allowEmpty = false
+    ) => {
       setErrors("");
 
+      // Empty input
       if (addresses.length === 0) {
+        if (allowEmpty) return true;
         setErrors("Required Field");
-        //empty input
         return false;
       }
 
       const splitAdds = splitAddresses(addresses);
 
+      // EMPTY input
       if (splitAdds.length === 0) {
         setErrors("Need valid address or ens name");
-        //empty input
         return false;
       }
 
       const parsedAdds = await Promise.all(
         splitAdds.map(async address => {
+          // EMPTY address
           if (address.length === 0) {
-            //empty input
             return null;
           }
 
@@ -176,11 +152,11 @@ const ParserTxLookup: FC<Props> = ({
 
           const isValid = await validateAddress(address);
           if (!isValid) {
-            // INVALID
+            // INVALID address
             return null;
           }
 
-          // VALID
+          // VALID address
           return address;
         })
       );
@@ -215,7 +191,8 @@ const ParserTxLookup: FC<Props> = ({
       receivingAddressesCount.current = 0;
       const isValid = await validateAddresses(
         receivingAddresses,
-        setReceivingAddressesErrors
+        setReceivingAddressesErrors,
+        true
       );
       setReceivingAddressesValid(isValid);
     }, 700);
@@ -254,7 +231,7 @@ const ParserTxLookup: FC<Props> = ({
           onChange={e => setAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
-        <Error msg={addressesErrors} />
+        {submitted && <Error msg={addressesErrors} />}
 
         <div className="px">Receiving Addresses:</div>
         <textarea
@@ -266,7 +243,7 @@ const ParserTxLookup: FC<Props> = ({
           onChange={e => setReceivingAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
-        <Error msg={receivingAddressesErrors} />
+        {submitted && <Error msg={receivingAddressesErrors} />}
 
         <div className="px">Starting Block:</div>
         <input
@@ -275,7 +252,7 @@ const ParserTxLookup: FC<Props> = ({
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
         />
-        <Error msg={startBlockError} />
+        {submitted && <Error msg={startBlockError} />}
 
         <div className="center text-center">
           <button className="btn m" type="submit">
