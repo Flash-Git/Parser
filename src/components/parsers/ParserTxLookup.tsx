@@ -4,7 +4,8 @@ import React, {
   FormEvent,
   Fragment,
   useEffect,
-  useRef
+  useRef,
+  useCallback
 } from "react";
 import { resetType, FixedTransactionResponse } from "parsers";
 import { utils } from "ethers";
@@ -28,13 +29,15 @@ const ParserTxLookup: FC<Props> = ({
    */
 
   const [addresses, setAddresses] = useState("");
-  const [addressesValid, setAddressesValid] = useState(true);
+  const [addressesValid, setAddressesValid] = useState(false);
   const [addressesErrors, setAddressesErrors] = useState("");
 
   const [receivingAddresses, setReceivingAddresses] = useState("");
+  const [receivingAddressesValid, setReceivingAddressesValid] = useState(false);
   const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
 
   const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
+  const [startBlockValid, setStartBlockValid] = useState(false);
   const [startBlockError, setStartBlockError] = useState("");
 
   /*
@@ -138,79 +141,101 @@ const ParserTxLookup: FC<Props> = ({
   const receivingAddressesCount = useRef(0);
   const startBlockCount = useRef(0);
 
-  const validateAddress = async (address: string) => {
-    if (address.length === 0) return false;
-    if (isAddress(address)) return true;
-    if (await isENS(etherscanProvider, address)) return true;
-    return false;
-  };
+  // TODO check for duplicates
+  const validateAddresses = useCallback(
+    async (addresses: string, setErrors: (errors: string) => void) => {
+      setErrors("");
 
-  const validateAddresses = async (addresses: string) => {
-    setAddressesErrors("");
+      if (addresses.length === 0) {
+        setErrors("Required Field");
+        //empty input
+        return false;
+      }
 
-    if (addresses.length === 0) {
-      setAddressesErrors("Required Field");
-      //empty input
-      return false;
-    }
+      const splitAdds = splitAddresses(addresses);
 
-    const splitAdds = splitAddresses(addresses);
+      if (splitAdds.length === 0) {
+        setErrors("Need valid address or ens name");
+        //empty input
+        return false;
+      }
 
-    if (splitAdds.length === 0) {
-      setAddressesErrors("Need valid address or ens name");
-      //empty input
-      return false;
-    }
+      const parsedAdds = await Promise.all(
+        splitAdds.map(async address => {
+          if (address.length === 0) {
+            //empty input
+            return null;
+          }
 
-    const parsedAdds = await Promise.all(
-      splitAdds.map(async address => {
-        if (address.length === 0) {
-          //empty input
-          return null;
-        }
+          const validateAddress = async (address: string) => {
+            if (address.length === 0) return false;
+            if (isAddress(address)) return true;
+            if (await isENS(etherscanProvider, address)) return true;
+            return false;
+          };
 
-        const isValid = await validateAddress(address);
-        if (!isValid) {
-          // INVALID
-          return null;
-        }
+          const isValid = await validateAddress(address);
+          if (!isValid) {
+            // INVALID
+            return null;
+          }
 
-        // VALID
-        return address;
-      })
-    );
+          // VALID
+          return address;
+        })
+      );
 
-    if (parsedAdds.some(address => address === null)) {
-      setAddressesErrors("One or more addresses is invalid");
-      // Contains invalid address
-      return false;
-    }
+      if (parsedAdds.some(address => address === null)) {
+        setErrors("One or more addresses is invalid");
+        // Contains invalid address
+        return false;
+      }
 
-    return true;
-  };
+      return true;
+    },
+    [etherscanProvider]
+  );
 
   useEffect(() => {
     const val = ++addressesCount.current;
     setTimeout(async () => {
       if (addressesCount.current !== val) return;
 
-      const isValid = await validateAddresses(addresses);
-      setAddressesValid(isValid);
       addressesCount.current = 0;
-    }, 1000);
-  }, [addresses]);
+      const isValid = await validateAddresses(addresses, setAddressesErrors);
+      setAddressesValid(isValid);
+    }, 700);
+  }, [addresses, validateAddresses]);
 
-  // useEffect(() => {
+  useEffect(() => {
+    const val = ++receivingAddressesCount.current;
+    setTimeout(async () => {
+      if (receivingAddressesCount.current !== val) return;
 
-  // }, [receivingAddresses])
+      receivingAddressesCount.current = 0;
+      const isValid = await validateAddresses(
+        receivingAddresses,
+        setReceivingAddressesErrors
+      );
+      setReceivingAddressesValid(isValid);
+    }, 700);
+  }, [receivingAddresses, validateAddresses]);
 
-  // useEffect(() => {
+  useEffect(() => {
+    const val = ++startBlockCount.current;
+    setTimeout(async () => {
+      if (startBlockCount.current !== val) return;
 
-  // }, [startBlock])
+      // const isValid = await validateAddresses(addresses);
+      startBlockCount.current = 0;
+      const isValid = true; // TODO
+      setStartBlockValid(isValid);
+    }, 700);
+  }, [startBlock, validateAddresses]);
 
   const Error: FC<{ msg: string }> = ({ msg }) => {
     return (
-      <div className="mbot" style={{ color: "red", marginTop: "-0.5rem" }}>
+      <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
         {/* TEMP STYLING */}
         {msg}
       </div>
@@ -225,6 +250,7 @@ const ParserTxLookup: FC<Props> = ({
         <textarea
           rows={4}
           value={addresses}
+          placeholder={"quinn.eth, anotheraddress.eth"}
           onChange={e => setAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
@@ -234,6 +260,9 @@ const ParserTxLookup: FC<Props> = ({
         <textarea
           rows={4}
           value={receivingAddresses}
+          placeholder={
+            "bitfinex.eth, 0x818e6fecd516ecc3849daf6845e3ec868087b755"
+          } // Kyber
           onChange={e => setReceivingAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
