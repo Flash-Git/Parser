@@ -14,7 +14,12 @@ const Alerts: FC = () => {
         alerts.map(({ id, type, msg }: Alert) => (
           <div key={id} className={`alert alert-${type}`}>
             <div>
-              <FontAwesomeIcon icon={["fas", "info-circle"]} /> {msg}
+              {type !== "danger" ? (
+                <FontAwesomeIcon icon={["fas", "info-circle"]} />
+              ) : (
+                <FontAwesomeIcon icon={["fas", "exclamation-circle"]} />
+              )}
+              &nbsp;{msg}
             </div>
             <button
               style={{
