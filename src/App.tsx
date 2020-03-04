@@ -23,15 +23,11 @@ const App: FC = () => (
       <Router>
         <Alerts />
         <Switch>
-          <Route exact path="/">
-            <Home />
-          </Route>
+          <Route exact path="/" component={Home} />
           <Route exact path="/about">
             <About version={version} />
           </Route>
-          <Route>
-            <NotFound />
-          </Route>
+          <Route component={NotFound} />
         </Switch>
       </Router>
     </Web3State>

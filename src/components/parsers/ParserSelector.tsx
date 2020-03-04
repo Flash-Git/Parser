@@ -16,4 +16,5 @@ const ParserSelector: FC<Props> = ({ setType }) => (
     </button>
   </div>
 );
+
 export default ParserSelector;
