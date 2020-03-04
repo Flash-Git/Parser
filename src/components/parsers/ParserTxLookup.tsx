@@ -62,35 +62,39 @@ const ParserTxLookup: FC<Props> = ({
     addresses.replace(/[^a-zA-Z^\d.,;]/g, "").split(/[,;]/g);
 
   const getTransactions = async () => {
-    const histories: Promise<TransactionResponse[]>[] = [];
+    let histories: TransactionResponse[] = [];
     setTransactions([]);
 
-    splitAddresses(addresses).map(address =>
-      histories.push(
-        etherscanProvider.getHistory(address, startBlock, "latest")
+    await Promise.all(
+      splitAddresses(addresses).map(async address => {
+        const addressTxs = await etherscanProvider.getHistory(
+          address,
+          startBlock,
+          "latest"
+        );
+        histories = [...histories, ...addressTxs];
+        return address;
+      })
+    );
+
+    histories.sort((a, b) => a.blockNumber - b.blockNumber);
+    histories.splice(100);
+
+    // TODO add options for incoming, outgoing or both
+
+    // If no receiving addresses are given get all transactions
+    if (receivingAddresses.length === 0) {
+      setTransactions(txs => [...txs, ...histories]);
+      return;
+    }
+
+    const filteredTxs = await histories.filter((tx: FixedTransactionResponse) =>
+      splitAddresses(receivingAddresses).some(
+        add => add.toLowerCase() === tx.to?.toLowerCase()
       )
     );
 
-    // TODO add options for incoming, outgoing or both
-    // histories.sort(history) TODO
-    await histories.map(async history => {
-      // If no receiving addresses are given get all transactions
-      if (receivingAddresses.length === 0) {
-        const unfilteredTxs = await history;
-        setTransactions(txs => [...txs, ...unfilteredTxs]);
-        return history;
-      }
-
-      const filteredTxs = await (
-        await history
-      ).filter((tx: FixedTransactionResponse) =>
-        splitAddresses(receivingAddresses).some(
-          add => add.toLowerCase() === tx.to?.toLowerCase()
-        )
-      );
-      setTransactions(txs => [...txs, ...filteredTxs]);
-      return history;
-    });
+    setTransactions(txs => [...txs, ...filteredTxs]);
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -211,14 +215,11 @@ const ParserTxLookup: FC<Props> = ({
     }, 700);
   }, [startBlock, validateBlock]);
 
-  const Error: FC<{ msg: string }> = ({ msg }) => {
-    return (
-      <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
-        {/* TEMP STYLING */}
-        {msg}
-      </div>
-    );
-  };
+  const Error: FC<{ msg: string }> = ({ msg }) => (
+    <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
+      {msg}
+    </div>
+  );
 
   return (
     <Fragment>
@@ -268,7 +269,7 @@ const ParserTxLookup: FC<Props> = ({
         className="my-2 px-1"
         style={{
           display: "grid",
-          gridTemplateColumns: "0.5fr 0.5fr 9fr 5fr 7fr",
+          gridTemplateColumns: "0.5fr 0.5fr 9fr 5fr auto",
           gap: "1rem",
           textAlign: "left",
           maxWidth: "40rem",
@@ -278,7 +279,7 @@ const ParserTxLookup: FC<Props> = ({
       >
         {transactions.map((tx, index: number) => (
           <Fragment key={index}>
-            <div>{zeroPad(index, 3)}</div>
+            <div>{zeroPad(index + 1, 3)}</div>
             <div>{` - `}</div>
             <div>
               {"Tx Hash: "}
