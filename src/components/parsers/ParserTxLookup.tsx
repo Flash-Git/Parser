@@ -36,7 +36,7 @@ const ParserTxLookup: FC<Props> = ({
   const [receivingAddressesValid, setReceivingAddressesValid] = useState(false);
   const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
 
-  const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
+  const [startBlock, setStartBlock] = useState("9000000"); // TODO accept date
   const [startBlockValid, setStartBlockValid] = useState(true);
   const [startBlockError, setStartBlockError] = useState("");
 
@@ -178,6 +178,10 @@ const ParserTxLookup: FC<Props> = ({
     []
   );
 
+  /*
+   * Input Hooks
+   */
+
   useEffect(() => {
     const val = ++addressesCount.current;
     setTimeout(async () => {
@@ -214,6 +218,10 @@ const ParserTxLookup: FC<Props> = ({
       setStartBlockValid(isValid);
     }, 700);
   }, [startBlock, validateBlock]);
+
+  /*
+   * Rendering
+   */
 
   const Error: FC<{ msg: string }> = ({ msg }) => (
     <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
