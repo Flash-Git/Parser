@@ -130,21 +130,26 @@ const ParserTxLookup: FC<Props> = ({
 
       const splitAdds = splitAddresses(addresses);
 
-      // EMPTY input after parsing
+      // Empty input after parsing
       if (splitAdds.length === 0) {
         setErrors("Invalid characters");
         return false;
       }
 
-      if (
-        await splitAdds.some(async address => {
-          // EMPTY address
-          if (address.length === 0) return true;
-          // INVALID address
-          if (!(await validateAddress(address, etherscanProvider))) return true;
-          return false;
-        })
-      ) {
+      const hasError = await new Promise(async resolve => {
+        await Promise.all(
+          splitAdds.map(async address => {
+            return new Promise(async resolveInner => {
+              if (!(await validateAddress(address, etherscanProvider)))
+                resolve(true);
+              else resolveInner();
+            });
+          })
+        );
+        resolve(false);
+      });
+
+      if (hasError) {
         setErrors("Invalid addresses");
         return false;
       }
