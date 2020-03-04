@@ -1,69 +1,223 @@
-import React, { FC, useState, FormEvent, Fragment } from "react";
+import React, {
+  FC,
+  useState,
+  FormEvent,
+  Fragment,
+  useEffect,
+  useRef,
+  useCallback
+} from "react";
 import { resetType, FixedTransactionResponse } from "parsers";
 import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
-import { zeroPad } from "utils/misc";
+import { zeroPad, isAddress, isENS, validateAddress } from "utils/misc";
+import { AddAlert } from "context";
 
 interface Props {
   resetType: resetType;
   etherscanProvider: EtherscanProvider;
+  addAlert: AddAlert;
 }
 
-const ParserTxLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
-  // Input
-  const [addresses, setAddresses] = useState("");
-  const [receivingAddresses, setReceivingAddresses] = useState("");
-  const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
+const ParserTxLookup: FC<Props> = ({
+  resetType,
+  etherscanProvider,
+  addAlert
+}) => {
+  /*
+   * Input
+   */
 
-  // Response
+  const [addresses, setAddresses] = useState("");
+  const [addressesValid, setAddressesValid] = useState(false);
+  const [addressesErrors, setAddressesErrors] = useState("");
+
+  const [receivingAddresses, setReceivingAddresses] = useState("");
+  const [receivingAddressesValid, setReceivingAddressesValid] = useState(false);
+  const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
+
+  const [startBlock, setStartBlock] = useState("4000000"); // TODO accept date
+  const [startBlockValid, setStartBlockValid] = useState(true);
+  const [startBlockError, setStartBlockError] = useState("");
+
+  /*
+   * State
+   */
+
   const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
     []
   );
 
+  const [submitted, setSubmitted] = useState(false);
+
+  const addressesCount = useRef(0);
+  const receivingAddressesCount = useRef(0);
+  const startBlockCount = useRef(0);
+
+  /*
+   * Methods
+   */
+
+  const splitAddresses = (addresses: string) =>
+    addresses.replace(/[^a-zA-Z^\d.,;]/g, "").split(/[,;]/g);
+
   const getTransactions = async () => {
     const histories: Promise<TransactionResponse[]>[] = [];
-
     setTransactions([]);
 
-    addresses
-      .replace(/\s/g, "")
-      .split(",")
-      .map(address =>
-        histories.push(
-          etherscanProvider.getHistory(address, startBlock, "latest")
-        )
-      );
+    splitAddresses(addresses).map(address =>
+      histories.push(
+        etherscanProvider.getHistory(address, startBlock, "latest")
+      )
+    );
 
+    // TODO add options for incoming, outgoing or both
     // histories.sort(history) TODO
     await histories.map(async history => {
-      const filteredTxs = await (await history).filter(
-        (tx: FixedTransactionResponse) =>
-          receivingAddresses
-            .replace(/\s/g, "")
-            .split(",")
-            .some(add => add.toLowerCase() === tx.to?.toLowerCase())
+      // If no receiving addresses are given get all transactions
+      if (receivingAddresses.length === 0) {
+        const unfilteredTxs = await history;
+        setTransactions(txs => [...txs, ...unfilteredTxs]);
+        return history;
+      }
+
+      const filteredTxs = await (
+        await history
+      ).filter((tx: FixedTransactionResponse) =>
+        splitAddresses(receivingAddresses).some(
+          add => add.toLowerCase() === tx.to?.toLowerCase()
+        )
       );
-
       setTransactions(txs => [...txs, ...filteredTxs]);
+      return history;
     });
-
-    // const txs = filteredTxs.map((tx: FixedTransactionResponse) => {
-    //   return {
-    //     to: tx.to,
-    //     creates: tx.creates,
-    //     hash: tx.hash,
-    //     value: tx.value,
-    //     blockNumber: tx.blockNumber,
-    //     timestamp: tx.timestamp
-    //   };
-    // });
-
-    // setTransactions(txs);
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (
+      addressesCount.current !== 0 ||
+      receivingAddressesCount.current !== 0 ||
+      startBlockCount.current !== 0
+    ) {
+      console.log("Still validating inputs");
+      return;
+    }
+
+    setSubmitted(true);
+
+    if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
+
     getTransactions();
+  };
+
+  // TODO check for duplicates
+  const validateAddresses = useCallback(
+    async (
+      addresses: string,
+      setErrors: (errors: string) => void,
+      optional = false
+    ) => {
+      setErrors("");
+
+      // Empty input
+      if (addresses.length === 0) {
+        if (optional) return true;
+        setErrors("Required Field");
+        return false;
+      }
+
+      const splitAdds = splitAddresses(addresses);
+
+      // Empty input after parsing
+      if (splitAdds.length === 0) {
+        setErrors("Invalid characters");
+        return false;
+      }
+
+      const hasError = await new Promise(async resolve => {
+        await Promise.all(
+          splitAdds.map(async address => {
+            return new Promise(async resolveInner => {
+              if (!(await validateAddress(address, etherscanProvider)))
+                resolve(true);
+              else resolveInner();
+            });
+          })
+        );
+        resolve(false);
+      });
+
+      if (hasError) {
+        setErrors("Invalid addresses");
+        return false;
+      }
+      return true;
+    },
+    [etherscanProvider]
+  );
+
+  const validateBlock = useCallback(
+    (block: string, setErrors: (errors: string) => void, optional = false) => {
+      setErrors("");
+      if (block.length === 0) {
+        if (optional) return true;
+        setErrors("Required Field");
+        return false;
+      }
+
+      if (block.match(/^\d{0,8}$/g)) return true;
+      setErrors("Invalid block number");
+      return false;
+    },
+    []
+  );
+
+  useEffect(() => {
+    const val = ++addressesCount.current;
+    setTimeout(async () => {
+      if (addressesCount.current !== val) return;
+
+      addressesCount.current = 0;
+      const isValid = await validateAddresses(addresses, setAddressesErrors);
+      setAddressesValid(isValid);
+    }, 700);
+  }, [addresses, validateAddresses]);
+
+  useEffect(() => {
+    const val = ++receivingAddressesCount.current;
+    setTimeout(async () => {
+      if (receivingAddressesCount.current !== val) return;
+
+      receivingAddressesCount.current = 0;
+      const isValid = await validateAddresses(
+        receivingAddresses,
+        setReceivingAddressesErrors,
+        true
+      );
+      setReceivingAddressesValid(isValid);
+    }, 700);
+  }, [receivingAddresses, validateAddresses]);
+
+  useEffect(() => {
+    const val = ++startBlockCount.current;
+    setTimeout(async () => {
+      if (startBlockCount.current !== val) return;
+
+      startBlockCount.current = 0;
+      const isValid = validateBlock(startBlock, setStartBlockError);
+      setStartBlockValid(isValid);
+    }, 700);
+  }, [startBlock, validateBlock]);
+
+  const Error: FC<{ msg: string }> = ({ msg }) => {
+    return (
+      <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
+        {/* TEMP STYLING */}
+        {msg}
+      </div>
+    );
   };
 
   return (
@@ -74,17 +228,23 @@ const ParserTxLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
         <textarea
           rows={4}
           value={addresses}
+          placeholder={"quinn.eth, anotheraddress.eth"}
           onChange={e => setAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
+        {submitted && <Error msg={addressesErrors} />}
 
         <div className="px">Receiving Addresses:</div>
         <textarea
           rows={4}
           value={receivingAddresses}
+          placeholder={
+            "bitfinex.eth, 0x818e6fecd516ecc3849daf6845e3ec868087b755"
+          } // Kyber
           onChange={e => setReceivingAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
+        {submitted && <Error msg={receivingAddressesErrors} />}
 
         <div className="px">Starting Block:</div>
         <input
@@ -93,13 +253,14 @@ const ParserTxLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
         />
+        {submitted && <Error msg={startBlockError} />}
 
         <div className="center text-center">
           <button className="btn m" type="submit">
             Lookup
           </button>
           <button className="btn m" onClick={() => resetType()}>
-            Reset Parser
+            Reset
           </button>
         </div>
       </form>
@@ -138,10 +299,3 @@ const ParserTxLookup: FC<Props> = ({ resetType, etherscanProvider }) => {
 };
 
 export default ParserTxLookup;
-
-// <input
-// type="text"
-// value={addresses}
-// className="address text-center"
-// onChange={e => setAddresses(e.target.value)}
-// />

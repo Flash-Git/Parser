@@ -6,7 +6,9 @@ declare module "context" {
     type: string;
   };
 
-  // Alert
+  /*
+   *Alerts
+   */
   export type Alert = {
     msg: string;
     type: string;
@@ -23,7 +25,14 @@ declare module "context" {
 
   export type ClearAlerts = () => void;
 
-  // Web3
+  export interface AlertContext extends Alerts {
+    addAlert: AddAlert;
+    clearAlerts: ClearAlerts;
+  }
+
+  /*
+   *Web3
+   */
   export interface Web3State {
     provider: Provider;
     etherscanProvider: EtherscanProvider;
