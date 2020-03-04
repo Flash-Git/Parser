@@ -11,7 +11,11 @@ const ParserSelector: FC<Props> = ({ setType }) => (
     <button className="btn m" onClick={() => setType(PARSER_TYPES.txLookup)}>
       Tx Lookup
     </button>
-    <button className="btn m" onClick={() => setType(PARSER_TYPES.eventLookup)}>
+    <button
+      className="btn m"
+      disabled
+      onClick={() => setType(PARSER_TYPES.eventLookup)}
+    >
       Event Lookup
     </button>
   </div>

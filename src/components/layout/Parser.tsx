@@ -32,7 +32,8 @@ const Parser: FC = () => {
    * State
    */
 
-  const [type, setType] = useState(PARSER_TYPES.undefined);
+  // TODO Defaulting to tx lookup
+  const [type, setType] = useState(PARSER_TYPES.txLookup);
 
   /*
    * Hooks
