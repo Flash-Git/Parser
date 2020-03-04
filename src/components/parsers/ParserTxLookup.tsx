@@ -35,7 +35,7 @@ const ParserTxLookup: FC<Props> = ({
   const [addressesErrors, setAddressesErrors] = useState("");
 
   const [receivingAddresses, setReceivingAddresses] = useState("");
-  const [receivingAddressesValid, setReceivingAddressesValid] = useState(false);
+  const [receivingAddressesValid, setReceivingAddressesValid] = useState(true);
   const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
 
   const [startBlock, setStartBlock] = useState("9000000"); // TODO accept date
@@ -241,7 +241,12 @@ const ParserTxLookup: FC<Props> = ({
           value={addresses}
           placeholder={addressPlaceHolder}
           onChange={e => setAddresses(e.target.value)}
-          style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
+          style={{
+            resize: "vertical",
+            fontSize: "0.85rem",
+            maxWidth: "27em",
+            border: `1px solid ${addressesValid ? "green" : "red"}`
+          }}
         />
         {submitted && <Error msg={addressesErrors} />}
 
@@ -251,7 +256,12 @@ const ParserTxLookup: FC<Props> = ({
           value={receivingAddresses}
           placeholder={addressPlaceHolder} // Kyber
           onChange={e => setReceivingAddresses(e.target.value)}
-          style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
+          style={{
+            resize: "vertical",
+            fontSize: "0.85rem",
+            maxWidth: "27em",
+            border: `1px solid ${receivingAddressesValid ? "green" : "red"}`
+          }}
         />
         {submitted && <Error msg={receivingAddressesErrors} />}
 
@@ -261,6 +271,9 @@ const ParserTxLookup: FC<Props> = ({
           value={startBlock}
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
+          style={{
+            border: `1px solid ${setStartBlockValid ? "green" : "red"}`
+          }}
         />
         {submitted && <Error msg={startBlockError} />}
 
