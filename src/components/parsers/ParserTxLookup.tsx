@@ -19,6 +19,8 @@ interface Props {
   addAlert: AddAlert;
 }
 
+const addressPlaceHolder = "example.eth, 0x0000000000...";
+
 const ParserTxLookup: FC<Props> = ({
   resetType,
   etherscanProvider,
@@ -237,7 +239,7 @@ const ParserTxLookup: FC<Props> = ({
         <textarea
           rows={4}
           value={addresses}
-          placeholder={"quinn.eth, anotheraddress.eth"}
+          placeholder={addressPlaceHolder}
           onChange={e => setAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
@@ -247,9 +249,7 @@ const ParserTxLookup: FC<Props> = ({
         <textarea
           rows={4}
           value={receivingAddresses}
-          placeholder={
-            "bitfinex.eth, 0x818e6fecd516ecc3849daf6845e3ec868087b755"
-          } // Kyber
+          placeholder={addressPlaceHolder} // Kyber
           onChange={e => setReceivingAddresses(e.target.value)}
           style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
         />
