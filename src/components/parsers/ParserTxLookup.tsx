@@ -237,19 +237,16 @@ const ParserTxLookup: FC<Props> = ({
    */
 
   const Error: FC<{ msg: string }> = ({ msg }) => (
-    <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
+    <div className="mbot" style={{ color: "red" }}>
       {msg}
     </div>
   );
 
   const borderStyle = (isValid: boolean, isLoading: boolean) => {
-    if (isLoading) {
-      return { borderBottom: "1px solid yellow" }; // or dotted red/green
-    } else {
-      return !isValid ? { borderBottom: "1px solid red" } : {};
-    }
+    if (isLoading) return {};
+    else return !isValid ? { borderBottom: "1px solid red" } : {};
   };
-  console.log("render");
+
   return (
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
@@ -264,9 +261,11 @@ const ParserTxLookup: FC<Props> = ({
             resize: "vertical",
             fontSize: "0.85rem",
             maxWidth: "27em",
+            marginBottom: "0",
             ...borderStyle(addressesValid, addressesLoading)
           }}
         />
+        {addressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={addressesErrors} />}
 
         <div className="px">Receiving Addresses:</div>
@@ -279,9 +278,11 @@ const ParserTxLookup: FC<Props> = ({
             resize: "vertical",
             fontSize: "0.85rem",
             maxWidth: "27em",
+            marginBottom: "0",
             ...borderStyle(receivingAddressesValid, receivingAddressesLoading)
           }}
         />
+        {receivingAddressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={receivingAddressesErrors} />}
 
         <div className="px">Starting Block:</div>
@@ -290,8 +291,12 @@ const ParserTxLookup: FC<Props> = ({
           value={startBlock}
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
-          style={borderStyle(startBlockValid, startBlockLoading)}
+          style={{
+            marginBottom: "0",
+            ...borderStyle(startBlockValid, startBlockLoading)
+          }}
         />
+        {startBlockLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={startBlockError} />}
 
         <div className="center text-center">
