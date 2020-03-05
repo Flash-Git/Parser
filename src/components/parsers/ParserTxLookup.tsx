@@ -33,14 +33,19 @@ const ParserTxLookup: FC<Props> = ({
   const [addresses, setAddresses] = useState("");
   const [addressesValid, setAddressesValid] = useState(false);
   const [addressesErrors, setAddressesErrors] = useState("");
+  const [addressesLoading, setAddressesLoading] = useState(false);
 
   const [receivingAddresses, setReceivingAddresses] = useState("");
   const [receivingAddressesValid, setReceivingAddressesValid] = useState(true);
   const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
+  const [receivingAddressesLoading, setReceivingAddressesLoading] = useState(
+    false
+  );
 
   const [startBlock, setStartBlock] = useState("9000000"); // TODO accept date
   const [startBlockValid, setStartBlockValid] = useState(true);
   const [startBlockError, setStartBlockError] = useState("");
+  const [startBlockLoading, setStartBlockLoading] = useState(false);
 
   /*
    * State
@@ -190,7 +195,9 @@ const ParserTxLookup: FC<Props> = ({
       if (addressesCount.current !== val) return;
 
       addressesCount.current = 0;
+      setAddressesLoading(true);
       const isValid = await validateAddresses(addresses, setAddressesErrors);
+      setAddressesLoading(false);
       setAddressesValid(isValid);
     }, 700);
   }, [addresses, validateAddresses]);
@@ -201,11 +208,13 @@ const ParserTxLookup: FC<Props> = ({
       if (receivingAddressesCount.current !== val) return;
 
       receivingAddressesCount.current = 0;
+      setReceivingAddressesLoading(true);
       const isValid = await validateAddresses(
         receivingAddresses,
         setReceivingAddressesErrors,
         true
       );
+      setReceivingAddressesLoading(false);
       setReceivingAddressesValid(isValid);
     }, 700);
   }, [receivingAddresses, validateAddresses]);
@@ -216,8 +225,10 @@ const ParserTxLookup: FC<Props> = ({
       if (startBlockCount.current !== val) return;
 
       startBlockCount.current = 0;
+      setStartBlockLoading(true);
       const isValid = validateBlock(startBlock, setStartBlockError);
       setStartBlockValid(isValid);
+      setStartBlockLoading(false);
     }, 700);
   }, [startBlock, validateBlock]);
 
@@ -231,6 +242,14 @@ const ParserTxLookup: FC<Props> = ({
     </div>
   );
 
+  const borderStyle = (isValid: boolean, isLoading: boolean) => {
+    if (isLoading) {
+      return { borderBottom: "1px solid yellow" }; // or dotted red/green
+    } else {
+      return !isValid ? { borderBottom: "1px solid red" } : {};
+    }
+  };
+  console.log("render");
   return (
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
@@ -245,7 +264,7 @@ const ParserTxLookup: FC<Props> = ({
             resize: "vertical",
             fontSize: "0.85rem",
             maxWidth: "27em",
-            border: `1px solid ${addressesValid ? "green" : "red"}`
+            ...borderStyle(addressesValid, addressesLoading)
           }}
         />
         {submitted && <Error msg={addressesErrors} />}
@@ -260,7 +279,7 @@ const ParserTxLookup: FC<Props> = ({
             resize: "vertical",
             fontSize: "0.85rem",
             maxWidth: "27em",
-            border: `1px solid ${receivingAddressesValid ? "green" : "red"}`
+            ...borderStyle(receivingAddressesValid, receivingAddressesLoading)
           }}
         />
         {submitted && <Error msg={receivingAddressesErrors} />}
@@ -271,9 +290,7 @@ const ParserTxLookup: FC<Props> = ({
           value={startBlock}
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
-          style={{
-            border: `1px solid ${setStartBlockValid ? "green" : "red"}`
-          }}
+          style={borderStyle(startBlockValid, startBlockLoading)}
         />
         {submitted && <Error msg={startBlockError} />}
 
