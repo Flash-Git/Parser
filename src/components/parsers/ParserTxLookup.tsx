@@ -10,7 +10,7 @@ import React, {
 import { resetType, FixedTransactionResponse } from "parsers";
 import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
-import { zeroPad, isAddress, isENS, validateAddress } from "utils/misc";
+import { zeroPad, validateAddress, getBlockDate } from "utils/misc";
 import { AddAlert } from "context";
 import Spinner from "components/layout/Spinner";
 
@@ -51,6 +51,8 @@ const ParserTxLookup: FC<Props> = ({
   /*
    * State
    */
+
+  const [startBlockDate, setStartBlockDate] = useState("");
 
   const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
     []
@@ -238,6 +240,16 @@ const ParserTxLookup: FC<Props> = ({
     }, 700);
   }, [startBlock, validateBlock]);
 
+  useEffect(() => {
+    if (!startBlockValid) return;
+    const updateDate = async () => {
+      const date = await getBlockDate(parseInt(startBlock), etherscanProvider);
+      setStartBlockDate(date);
+    };
+
+    updateDate();
+  }, [etherscanProvider, startBlock, startBlockValid]);
+
   /*
    * Rendering
    */
@@ -278,7 +290,7 @@ const ParserTxLookup: FC<Props> = ({
         <textarea
           rows={4}
           value={receivingAddresses}
-          placeholder={addressPlaceHolder} // Kyber
+          placeholder={addressPlaceHolder}
           onChange={e => setReceivingAddresses(e.target.value)}
           style={{
             resize: "vertical",
@@ -292,22 +304,27 @@ const ParserTxLookup: FC<Props> = ({
         {submitted && <Error msg={receivingAddressesErrors} />}
 
         <div className="px mtop-1">Starting Block:</div>
-        <input
-          type="text"
-          value={startBlock}
-          className="block-num text-center"
-          onChange={e => setStartBlock(e.target.value)}
-          style={{
-            marginBottom: "0",
-            ...borderStyle(startBlockValid, startBlockLoading)
-          }}
-        />
-        {startBlockLoading && <div className="growing-border"></div>}
+        <div className="flex row">
+          <input
+            type="text"
+            value={startBlock}
+            className="block-num text-center"
+            onChange={e => setStartBlock(e.target.value)}
+            style={{
+              marginBottom: "0",
+              height: "3rem",
+              ...borderStyle(startBlockValid, startBlockLoading)
+            }}
+          />
+          {startBlockLoading && <div className="growing-border"></div>}
+          <div className="block-num text-center">{startBlockDate}</div>
+        </div>
         {submitted && <Error msg={startBlockError} />}
 
         <div className="center text-center m">
           <button
             className={"btn btn-primary m"}
+            style={{ width: "7rem" }}
             type="submit"
             disabled={
               addressesCount.current !== 0 ||
@@ -317,7 +334,11 @@ const ParserTxLookup: FC<Props> = ({
           >
             Lookup
           </button>
-          <button className="btn btn-primary m" onClick={() => resetType()}>
+          <button
+            className="btn btn-primary m"
+            style={{ width: "7rem" }}
+            onClick={() => resetType()}
+          >
             Reset
           </button>
         </div>
