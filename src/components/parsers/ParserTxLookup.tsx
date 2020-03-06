@@ -12,6 +12,7 @@ import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
 import { zeroPad, isAddress, isENS, validateAddress } from "utils/misc";
 import { AddAlert } from "context";
+import Spinner from "components/layout/Spinner";
 
 interface Props {
   resetType: resetType;
@@ -33,14 +34,19 @@ const ParserTxLookup: FC<Props> = ({
   const [addresses, setAddresses] = useState("");
   const [addressesValid, setAddressesValid] = useState(false);
   const [addressesErrors, setAddressesErrors] = useState("");
+  const [addressesLoading, setAddressesLoading] = useState(false);
 
   const [receivingAddresses, setReceivingAddresses] = useState("");
-  const [receivingAddressesValid, setReceivingAddressesValid] = useState(false);
+  const [receivingAddressesValid, setReceivingAddressesValid] = useState(true);
   const [receivingAddressesErrors, setReceivingAddressesErrors] = useState("");
+  const [receivingAddressesLoading, setReceivingAddressesLoading] = useState(
+    false
+  );
 
   const [startBlock, setStartBlock] = useState("9000000"); // TODO accept date
   const [startBlockValid, setStartBlockValid] = useState(true);
   const [startBlockError, setStartBlockError] = useState("");
+  const [startBlockLoading, setStartBlockLoading] = useState(false);
 
   /*
    * State
@@ -49,6 +55,8 @@ const ParserTxLookup: FC<Props> = ({
   const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
     []
   );
+
+  const [loadingData, setLoadingData] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
 
@@ -97,6 +105,7 @@ const ParserTxLookup: FC<Props> = ({
     );
 
     setTransactions(txs => [...txs, ...filteredTxs]);
+    return;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -115,7 +124,9 @@ const ParserTxLookup: FC<Props> = ({
 
     if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
 
-    getTransactions();
+    setLoadingData(true);
+    await getTransactions();
+    setLoadingData(false);
   };
 
   // TODO check for duplicates
@@ -190,7 +201,9 @@ const ParserTxLookup: FC<Props> = ({
       if (addressesCount.current !== val) return;
 
       addressesCount.current = 0;
+      setAddressesLoading(true);
       const isValid = await validateAddresses(addresses, setAddressesErrors);
+      setAddressesLoading(false);
       setAddressesValid(isValid);
     }, 700);
   }, [addresses, validateAddresses]);
@@ -201,11 +214,13 @@ const ParserTxLookup: FC<Props> = ({
       if (receivingAddressesCount.current !== val) return;
 
       receivingAddressesCount.current = 0;
+      setReceivingAddressesLoading(true);
       const isValid = await validateAddresses(
         receivingAddresses,
         setReceivingAddressesErrors,
         true
       );
+      setReceivingAddressesLoading(false);
       setReceivingAddressesValid(isValid);
     }, 700);
   }, [receivingAddresses, validateAddresses]);
@@ -216,8 +231,10 @@ const ParserTxLookup: FC<Props> = ({
       if (startBlockCount.current !== val) return;
 
       startBlockCount.current = 0;
+      setStartBlockLoading(true);
       const isValid = validateBlock(startBlock, setStartBlockError);
       setStartBlockValid(isValid);
+      setStartBlockLoading(false);
     }, 700);
   }, [startBlock, validateBlock]);
 
@@ -226,55 +243,89 @@ const ParserTxLookup: FC<Props> = ({
    */
 
   const Error: FC<{ msg: string }> = ({ msg }) => (
-    <div className="mbot" style={{ color: "red", marginTop: "-1rem" }}>
+    <div className="mbot" style={{ color: "red" }}>
       {msg}
     </div>
   );
 
+  const borderStyle = (isValid: boolean, isLoading: boolean) => {
+    if (isLoading) return { borderBottom: "1px solid #ccc" };
+    else return !isValid ? { borderBottom: "1px solid red" } : {};
+  };
+
   return (
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
-        <div className="px">Your Addresses:</div>
+        <div className="px mtop-1">Your Addresses:</div>
 
         <textarea
           rows={4}
           value={addresses}
           placeholder={addressPlaceHolder}
           onChange={e => setAddresses(e.target.value)}
-          style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
+          style={{
+            resize: "vertical",
+            fontSize: "0.85rem",
+            maxWidth: "27em",
+            marginBottom: "0",
+            ...borderStyle(addressesValid, addressesLoading)
+          }}
         />
+        {addressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={addressesErrors} />}
 
-        <div className="px">Receiving Addresses:</div>
+        <div className="px mtop-1">Receiving Addresses:</div>
         <textarea
           rows={4}
           value={receivingAddresses}
           placeholder={addressPlaceHolder} // Kyber
           onChange={e => setReceivingAddresses(e.target.value)}
-          style={{ resize: "vertical", fontSize: "0.85rem", maxWidth: "27em" }}
+          style={{
+            resize: "vertical",
+            fontSize: "0.85rem",
+            maxWidth: "27em",
+            marginBottom: "0",
+            ...borderStyle(receivingAddressesValid, receivingAddressesLoading)
+          }}
         />
+        {receivingAddressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={receivingAddressesErrors} />}
 
-        <div className="px">Starting Block:</div>
+        <div className="px mtop-1">Starting Block:</div>
         <input
           type="text"
           value={startBlock}
           className="block-num text-center"
           onChange={e => setStartBlock(e.target.value)}
+          style={{
+            marginBottom: "0",
+            ...borderStyle(startBlockValid, startBlockLoading)
+          }}
         />
+        {startBlockLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={startBlockError} />}
 
-        <div className="center text-center">
-          <button className="btn m" type="submit">
+        <div className="center text-center m">
+          <button
+            className={"btn btn-primary m"}
+            type="submit"
+            disabled={
+              addressesCount.current !== 0 ||
+              receivingAddressesCount.current !== 0 ||
+              startBlockCount.current !== 0
+            }
+          >
             Lookup
           </button>
-          <button className="btn m" onClick={() => resetType()}>
+          <button className="btn btn-primary m" onClick={() => resetType()}>
             Reset
           </button>
         </div>
       </form>
+
+      <div>{loadingData && <Spinner />}</div>
       <div
-        className="my-2 px-1"
+        className="my-1 px-1"
         style={{
           display: "grid",
           gridTemplateColumns: "0.5fr 0.5fr 9fr 5fr auto",

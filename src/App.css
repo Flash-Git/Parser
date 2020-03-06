@@ -2,7 +2,7 @@
 
 /* Global Styles */
 :root {
-  --primary-color: #b83d93;
+  --primary-color: #177485;
   --dark-color: #333333;
   --light-color: #f4f4f4;
   --danger-color: #dc3545;
@@ -413,7 +413,8 @@ img {
 .bg-primary,
 .badge-primary,
 .alert-primary {
-  background: var(--primary-color);
+  background-color: var(--primary-color);
+  transition: background-color 100ms linear;
   color: #fff;
 }
 
@@ -462,6 +463,14 @@ img {
   opacity: 0.8;
 }
 
+.btn:disabled,
+btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: grey;
+  transition: background-color 2000ms ease;
+}
+
 .bg-light,
 .badge-light {
   border: #ccc solid 1px;
@@ -493,7 +502,7 @@ textarea {
   padding: 0.2rem 0.4rem;
   font-size: 1rem;
   border: 1px solid #ccc;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 input[type="submit"],
@@ -589,6 +598,26 @@ table th {
   max-width: 5.3rem;
   min-width: 5.3em;
   padding: 0.2rem 0.3rem;
+}
+
+.growing-border {
+  border-bottom: 1px solid green;
+  padding: 0 0.4rem;
+  animation: grow 3s infinite;
+  margin: 0 auto;
+  margin-top: -1px;
+  font-size: 0.85rem;
+  max-width: 100%;
+}
+
+@keyframes grow {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 27em;
+    /* width: 100%; */
+  }
 }
 
 /* Mobile Styles */
