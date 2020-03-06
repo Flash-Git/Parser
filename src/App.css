@@ -2,7 +2,7 @@
 
 /* Global Styles */
 :root {
-  --primary-color: #b83d93;
+  --primary-color: #177485;
   --dark-color: #333333;
   --light-color: #f4f4f4;
   --danger-color: #dc3545;
@@ -413,7 +413,8 @@ img {
 .bg-primary,
 .badge-primary,
 .alert-primary {
-  background: var(--primary-color);
+  background-color: var(--primary-color);
+  transition: background-color 100ms linear;
   color: #fff;
 }
 
@@ -460,6 +461,14 @@ img {
 
 .btn:hover {
   opacity: 0.8;
+}
+
+.btn:disabled,
+btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: grey;
+  transition: background-color 2000ms ease;
 }
 
 .bg-light,
