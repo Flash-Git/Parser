@@ -268,6 +268,7 @@ const ParserTxLookup: FC<Props> = ({
             fontSize: "0.85rem",
             maxWidth: "27em",
             marginBottom: "0",
+            // borderBottom: "1px solid transparent",
             ...borderStyle(addressesValid, addressesLoading)
           }}
         />
@@ -285,6 +286,7 @@ const ParserTxLookup: FC<Props> = ({
             fontSize: "0.85rem",
             maxWidth: "27em",
             marginBottom: "0",
+            // borderBottom: "1px solid transparent",
             ...borderStyle(receivingAddressesValid, receivingAddressesLoading)
           }}
         />
@@ -299,6 +301,7 @@ const ParserTxLookup: FC<Props> = ({
           onChange={e => setStartBlock(e.target.value)}
           style={{
             marginBottom: "0",
+            // borderBottom: "1px solid transparent",
             ...borderStyle(startBlockValid, startBlockLoading)
           }}
         />
@@ -306,10 +309,18 @@ const ParserTxLookup: FC<Props> = ({
         {submitted && <Error msg={startBlockError} />}
 
         <div className="center text-center">
-          <button className="btn m" type="submit">
+          <button
+            className={"btn btn-primary m"}
+            type="submit"
+            disabled={
+              addressesCount.current !== 0 ||
+              receivingAddressesCount.current !== 0 ||
+              startBlockCount.current !== 0
+            }
+          >
             Lookup
           </button>
-          <button className="btn m" onClick={() => resetType()}>
+          <button className="btn btn-primary m" onClick={() => resetType()}>
             Reset
           </button>
         </div>
