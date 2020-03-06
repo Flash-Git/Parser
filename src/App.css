@@ -502,7 +502,7 @@ textarea {
   padding: 0.2rem 0.4rem;
   font-size: 1rem;
   border: 1px solid #ccc;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 input[type="submit"],
@@ -605,6 +605,7 @@ table th {
   padding: 0 0.4rem;
   animation: grow 3s infinite;
   margin: 0 auto;
+  margin-top: -1px;
   font-size: 0.85rem;
   max-width: 100%;
 }

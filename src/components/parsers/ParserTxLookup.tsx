@@ -249,14 +249,14 @@ const ParserTxLookup: FC<Props> = ({
   );
 
   const borderStyle = (isValid: boolean, isLoading: boolean) => {
-    if (isLoading) return {};
+    if (isLoading) return { borderBottom: "1px solid #ccc" };
     else return !isValid ? { borderBottom: "1px solid red" } : {};
   };
 
   return (
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
-        <div className="px">Your Addresses:</div>
+        <div className="px mtop-1">Your Addresses:</div>
 
         <textarea
           rows={4}
@@ -268,14 +268,13 @@ const ParserTxLookup: FC<Props> = ({
             fontSize: "0.85rem",
             maxWidth: "27em",
             marginBottom: "0",
-            // borderBottom: "1px solid transparent",
             ...borderStyle(addressesValid, addressesLoading)
           }}
         />
         {addressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={addressesErrors} />}
 
-        <div className="px">Receiving Addresses:</div>
+        <div className="px mtop-1">Receiving Addresses:</div>
         <textarea
           rows={4}
           value={receivingAddresses}
@@ -286,14 +285,13 @@ const ParserTxLookup: FC<Props> = ({
             fontSize: "0.85rem",
             maxWidth: "27em",
             marginBottom: "0",
-            // borderBottom: "1px solid transparent",
             ...borderStyle(receivingAddressesValid, receivingAddressesLoading)
           }}
         />
         {receivingAddressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={receivingAddressesErrors} />}
 
-        <div className="px">Starting Block:</div>
+        <div className="px mtop-1">Starting Block:</div>
         <input
           type="text"
           value={startBlock}
@@ -301,14 +299,13 @@ const ParserTxLookup: FC<Props> = ({
           onChange={e => setStartBlock(e.target.value)}
           style={{
             marginBottom: "0",
-            // borderBottom: "1px solid transparent",
             ...borderStyle(startBlockValid, startBlockLoading)
           }}
         />
         {startBlockLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={startBlockError} />}
 
-        <div className="center text-center">
+        <div className="center text-center m">
           <button
             className={"btn btn-primary m"}
             type="submit"
@@ -328,7 +325,7 @@ const ParserTxLookup: FC<Props> = ({
 
       <div>{loadingData && <Spinner />}</div>
       <div
-        className="my-2 px-1"
+        className="my-1 px-1"
         style={{
           display: "grid",
           gridTemplateColumns: "0.5fr 0.5fr 9fr 5fr auto",
