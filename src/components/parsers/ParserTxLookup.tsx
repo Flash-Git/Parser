@@ -12,6 +12,7 @@ import { utils } from "ethers";
 import { TransactionResponse, EtherscanProvider } from "ethers/providers";
 import { zeroPad, isAddress, isENS, validateAddress } from "utils/misc";
 import { AddAlert } from "context";
+import Spinner from "components/layout/Spinner";
 
 interface Props {
   resetType: resetType;
@@ -54,6 +55,8 @@ const ParserTxLookup: FC<Props> = ({
   const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
     []
   );
+
+  const [loadingData, setLoadingData] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
 
@@ -102,6 +105,7 @@ const ParserTxLookup: FC<Props> = ({
     );
 
     setTransactions(txs => [...txs, ...filteredTxs]);
+    return;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -120,7 +124,9 @@ const ParserTxLookup: FC<Props> = ({
 
     if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
 
-    getTransactions();
+    setLoadingData(true);
+    await getTransactions();
+    setLoadingData(false);
   };
 
   // TODO check for duplicates
@@ -308,6 +314,8 @@ const ParserTxLookup: FC<Props> = ({
           </button>
         </div>
       </form>
+
+      <div>{loadingData && <Spinner />}</div>
       <div
         className="my-2 px-1"
         style={{
