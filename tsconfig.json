@@ -14,7 +14,8 @@
       "pages/*": ["src/pages/*"],
       "components/*": ["src/components/*"],
       "context/*": ["src/context/*"],
-      "utils/*": ["src/utils/*"]
+      "utils/*": ["src/utils/*"],
+      "res/*": ["res/*"]
     }
   },
   "include": ["./src"]
