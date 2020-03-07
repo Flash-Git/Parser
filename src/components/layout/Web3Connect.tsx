@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import AlertContext from "context/alert/AlertContext";
 import Web3Context from "context/web3/Web3Context";
-import { AddAlert } from "context/alert/IAlert";
+import { AddAlert } from "context";
 
 const Web3Connect: FC = () => {
   const alertContext = useContext(AlertContext);
