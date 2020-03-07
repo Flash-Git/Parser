@@ -315,13 +315,13 @@ const ParserTxLookup: FC<Props> = ({
           >
             Lookup
           </button>
-          <button
+          {/* <button
             className="btn btn-primary m"
             style={{ width: "7rem" }}
             onClick={() => resetType()}
           >
             Reset
-          </button>
+          </button> */}
         </div>
       </form>
 
