@@ -12,7 +12,8 @@ module.exports = env => {
         pages: path.resolve(__dirname, "./src/pages/"),
         components: path.resolve(__dirname, "./src/components/"),
         context: path.resolve(__dirname, "./src/context/"),
-        utils: path.resolve(__dirname, "./src/utils/")
+        utils: path.resolve(__dirname, "./src/utils/"),
+        res: path.resolve(__dirname, "./res/")
       }
     },
     output: {
@@ -33,6 +34,10 @@ module.exports = env => {
         {
           test: /\.css$/,
           use: ["style-loader", "css-loader"]
+        },
+        {
+          test: /\.(png|jpe?g|gif)$/,
+          use: ["file-loader"]
         }
       ]
     },
@@ -44,6 +49,13 @@ module.exports = env => {
         "process.env.development": !!(env && !env.production)
       }),
       new ForkTsCheckerWebpackPlugin({ eslint: true })
-    ]
+    ],
+    devServer: {
+      publicPath: "/",
+      hot: true,
+      open: false,
+      port: 3000,
+      historyApiFallback: true
+    }
   };
 };

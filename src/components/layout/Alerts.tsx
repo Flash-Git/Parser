@@ -2,7 +2,7 @@ import React, { FC, useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import AlertContext from "context/alert/AlertContext";
-import { Alert } from "context/alert/IAlert";
+import { Alert } from "context";
 
 const Alerts: FC = () => {
   const alertContext = useContext(AlertContext);
@@ -14,7 +14,12 @@ const Alerts: FC = () => {
         alerts.map(({ id, type, msg }: Alert) => (
           <div key={id} className={`alert alert-${type}`}>
             <div>
-              <FontAwesomeIcon icon={["fas", "info-circle"]} /> {msg}
+              {type !== "danger" ? (
+                <FontAwesomeIcon icon={["fas", "info-circle"]} />
+              ) : (
+                <FontAwesomeIcon icon={["fas", "exclamation-circle"]} />
+              )}
+              &nbsp;{msg}
             </div>
             <button
               style={{

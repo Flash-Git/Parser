@@ -1,42 +1,18 @@
-import React, { FC, useContext, useState } from "react";
+import React, { FC } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Parser from "components/layout/Parser";
 
-import { useMountEffect } from "utils/hooks";
-
-import { AddAlert, ClearAlerts } from "context/alert/IAlert";
-
-import AlertContext from "context/alert/AlertContext";
-
-const Home: FC = () => {
-  const alertContext = useContext(AlertContext);
-  const {
-    addAlert,
-    clearAlerts
-  }: { addAlert: AddAlert; clearAlerts: ClearAlerts } = alertContext;
-
-  const [counter, setCounter] = useState(1);
-
-  useMountEffect(() => {
-    addAlert("This is an alert!", "danger", 5000);
-  });
-
-  const onClick = () => {
-    addAlert(`Hello: ${counter}`, "light");
-    setCounter(counter + 1);
-  };
-
-  return (
-    <div className="container flex col center">
-      <h1>Hello World</h1>
-      <div className="row">
-        <button className="btn m" onClick={onClick}>
-          New Alert
-        </button>
-        <button className="btn m" onClick={clearAlerts}>
-          Clear Alerts
-        </button>
-      </div>
-    </div>
-  );
-};
+const Home: FC = () => (
+  <div
+    className="container flex col center p-1"
+    style={{ alignItems: "stretch" }}
+  >
+    <h1>
+      <FontAwesomeIcon className="mright" icon={["fab", "ethereum"]} />
+      Transaction Parser
+    </h1>
+    <Parser />
+  </div>
+);
 
 export default Home;

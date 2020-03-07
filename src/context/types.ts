@@ -5,3 +5,4 @@ export const CLEAR_ALERTS = "CLEAR_ALERT";
 
 // Web3
 export const SET_PROVIDER = "SET_PROVIDER";
+export const SET_ETHERSCAN_PROVIDER = "SET_ETHERSCAN_PROVIDER";

@@ -3,10 +3,9 @@ import uuid from "uuid";
 
 import AlertContext from "./AlertContext";
 import AlertReducer from "./AlertReducer";
+import { Alerts, AddAlert } from "context";
 
 import { ADD_ALERT, REMOVE_ALERT, CLEAR_ALERTS } from "../types";
-
-import { Alerts, AddAlert } from "./IAlert";
 
 const AlertState: FC = props => {
   const initialState: Alerts = [];

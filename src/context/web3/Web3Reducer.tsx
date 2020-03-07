@@ -1,6 +1,5 @@
-import { SET_PROVIDER } from "../types";
-
-import { Action, Web3State } from "./IWeb3";
+import { SET_PROVIDER, SET_ETHERSCAN_PROVIDER } from "../types";
+import { Web3State, Action } from "context";
 
 const Web3Reducer = (
   state: Web3State,
@@ -9,6 +8,8 @@ const Web3Reducer = (
   switch (type) {
     case SET_PROVIDER:
       return { ...state, provider: payload };
+    case SET_ETHERSCAN_PROVIDER:
+      return { ...state, etherscanProvider: payload };
     default:
       return state;
   }
