@@ -249,7 +249,8 @@ const ParserTxLookup: FC<Props> = ({
   return (
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
-        <div className="px mtop-1">Your Addresses:</div>
+        <div className="px mtop-1">Your Addresses:</div>{" "}
+        {/* Sending addresses */}
         <textarea
           rows={4}
           value={addresses}
@@ -265,7 +266,6 @@ const ParserTxLookup: FC<Props> = ({
         />
         {addressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={addressesErrors} />}
-
         <div className="px mtop-1">Receiving Addresses:</div>
         <textarea
           rows={4}
@@ -282,7 +282,6 @@ const ParserTxLookup: FC<Props> = ({
         />
         {receivingAddressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={receivingAddressesErrors} />}
-
         <div className="px mtop-1">Starting Block:</div>
         <div className="flex row">
           <input
@@ -300,7 +299,6 @@ const ParserTxLookup: FC<Props> = ({
           <div className="block-num text-center">{startBlockDate}</div>
         </div>
         {submitted && <Error msg={startBlockError} />}
-
         <div className="center text-center m">
           <button
             className={"btn btn-primary m"}
