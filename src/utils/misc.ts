@@ -24,7 +24,7 @@ export const isENS = async (provider: Provider, name: string) => {
   return true;
 };
 
-export const validateAddress = async (address: string, provider: Provider) => {
+export const validateAddress = async (provider: Provider, address: string) => {
   if (!provider) return false;
 
   if (address.length === 0) return false;
@@ -33,7 +33,7 @@ export const validateAddress = async (address: string, provider: Provider) => {
   return false;
 };
 
-export const getBlockDate = async (blockNumber: number, provider: Provider) => {
+export const getBlockDate = async (provider: Provider, blockNumber: number) => {
   if (!provider) return "";
 
   const blockStamp = await provider.getBlock(blockNumber);

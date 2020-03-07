@@ -20,7 +20,8 @@ interface Props {
   addAlert: AddAlert;
 }
 
-const addressPlaceHolder = "example.eth, 0x0000000000...";
+const addressPlaceHolder =
+  "ethereum.eth, jaquinn.eth, 0xdeadbeefb221b550f6586f5fe0136a9667deae16, 0x...";
 
 const ParserTxLookup: FC<Props> = ({
   resetType,
@@ -28,7 +29,7 @@ const ParserTxLookup: FC<Props> = ({
   addAlert
 }) => {
   /*
-   * Input
+   * State
    */
 
   const [addresses, setAddresses] = useState("");
@@ -43,95 +44,32 @@ const ParserTxLookup: FC<Props> = ({
     false
   );
 
-  const [startBlock, setStartBlock] = useState("9000000"); // TODO accept date
+  const [startBlock, setStartBlock] = useState("9000000");
+  const [startBlockDate, setStartBlockDate] = useState("");
   const [startBlockValid, setStartBlockValid] = useState(true);
   const [startBlockError, setStartBlockError] = useState("");
   const [startBlockLoading, setStartBlockLoading] = useState(false);
 
-  /*
-   * State
-   */
-
-  const [startBlockDate, setStartBlockDate] = useState("");
-
   const [transactions, setTransactions] = useState<FixedTransactionResponse[]>(
     []
   );
-
   const [loadingData, setLoadingData] = useState(false);
-
   const [submitted, setSubmitted] = useState(false);
 
+  /*
+   * Refs for async input updates
+   */
   const addressesCount = useRef(0);
   const receivingAddressesCount = useRef(0);
   const startBlockCount = useRef(0);
 
   /*
-   * Methods
+   * Input Hooks
    */
 
   const splitAddresses = (addresses: string) =>
     addresses.replace(/[^a-zA-Z^\d.,;]/g, "").split(/[,;]/g);
 
-  const getTransactions = async () => {
-    let histories: TransactionResponse[] = [];
-    setTransactions([]);
-
-    await Promise.all(
-      splitAddresses(addresses).map(async address => {
-        const addressTxs = await etherscanProvider.getHistory(
-          address,
-          startBlock,
-          "latest"
-        );
-        histories = [...histories, ...addressTxs];
-        return address;
-      })
-    );
-
-    histories.sort((a, b) => a.blockNumber - b.blockNumber);
-    histories.splice(100);
-
-    // TODO add options for incoming, outgoing or both
-
-    // If no receiving addresses are given get all transactions
-    if (receivingAddresses.length === 0) {
-      setTransactions(txs => [...txs, ...histories]);
-      return;
-    }
-
-    const filteredTxs = await histories.filter((tx: FixedTransactionResponse) =>
-      splitAddresses(receivingAddresses).some(
-        add => add.toLowerCase() === tx.to?.toLowerCase()
-      )
-    );
-
-    setTransactions(txs => [...txs, ...filteredTxs]);
-    return;
-  };
-
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (
-      addressesCount.current !== 0 ||
-      receivingAddressesCount.current !== 0 ||
-      startBlockCount.current !== 0
-    ) {
-      console.log("Still validating inputs");
-      return;
-    }
-
-    setSubmitted(true);
-
-    if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
-
-    setLoadingData(true);
-    await getTransactions();
-    setLoadingData(false);
-  };
-
-  // TODO check for duplicates
   const validateAddresses = useCallback(
     async (
       addresses: string,
@@ -139,27 +77,23 @@ const ParserTxLookup: FC<Props> = ({
       optional = false
     ) => {
       setErrors("");
-
       // Empty input
       if (addresses.length === 0) {
         if (optional) return true;
         setErrors("Required Field");
         return false;
       }
-
       const splitAdds = splitAddresses(addresses);
-
       // Empty input after parsing
       if (splitAdds.length === 0) {
         setErrors("Invalid characters");
         return false;
       }
-
       const hasError = await new Promise(async resolve => {
         await Promise.all(
           splitAdds.map(async address => {
             return new Promise(async resolveInner => {
-              if (!(await validateAddress(address, etherscanProvider)))
+              if (!(await validateAddress(etherscanProvider, address)))
                 resolve(true);
               else resolveInner();
             });
@@ -193,15 +127,10 @@ const ParserTxLookup: FC<Props> = ({
     []
   );
 
-  /*
-   * Input Hooks
-   */
-
   useEffect(() => {
     const val = ++addressesCount.current;
     setTimeout(async () => {
       if (addressesCount.current !== val) return;
-
       addressesCount.current = 0;
       setAddressesLoading(true);
       const isValid = await validateAddresses(addresses, setAddressesErrors);
@@ -214,7 +143,6 @@ const ParserTxLookup: FC<Props> = ({
     const val = ++receivingAddressesCount.current;
     setTimeout(async () => {
       if (receivingAddressesCount.current !== val) return;
-
       receivingAddressesCount.current = 0;
       setReceivingAddressesLoading(true);
       const isValid = await validateAddresses(
@@ -231,7 +159,6 @@ const ParserTxLookup: FC<Props> = ({
     const val = ++startBlockCount.current;
     setTimeout(async () => {
       if (startBlockCount.current !== val) return;
-
       startBlockCount.current = 0;
       setStartBlockLoading(true);
       const isValid = validateBlock(startBlock, setStartBlockError);
@@ -243,22 +170,76 @@ const ParserTxLookup: FC<Props> = ({
   useEffect(() => {
     if (!startBlockValid) return;
     const updateDate = async () => {
-      const date = await getBlockDate(parseInt(startBlock), etherscanProvider);
+      const date = await getBlockDate(etherscanProvider, parseInt(startBlock));
       setStartBlockDate(date);
     };
-
     updateDate();
   }, [etherscanProvider, startBlock, startBlockValid]);
+
+  /*
+   * Methods
+   */
+
+  const getTransactions = async () => {
+    let histories: TransactionResponse[] = [];
+    setTransactions([]);
+
+    await Promise.all(
+      splitAddresses(addresses).map(async address => {
+        const addressTxs = await etherscanProvider.getHistory(
+          address,
+          startBlock,
+          "latest"
+        );
+        histories = [...histories, ...addressTxs];
+        return address;
+      })
+    );
+
+    histories.sort((a, b) => a.blockNumber - b.blockNumber);
+    histories.splice(100);
+
+    // If no receiving addresses are given get all transactions
+    if (receivingAddresses.length === 0) {
+      setTransactions(txs => [...txs, ...histories]);
+      return;
+    }
+
+    const filteredTxs = await histories.filter((tx: FixedTransactionResponse) =>
+      splitAddresses(receivingAddresses).some(
+        add => add.toLowerCase() === tx.to?.toLowerCase()
+      )
+    );
+
+    setTransactions(txs => [...txs, ...filteredTxs]);
+    return;
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setSubmitted(true);
+
+    if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
+
+    setLoadingData(true);
+    await getTransactions();
+    setLoadingData(false);
+  };
 
   /*
    * Rendering
    */
 
-  const Error: FC<{ msg: string }> = ({ msg }) => (
-    <div className="mbot" style={{ color: "red" }}>
-      {msg}
-    </div>
-  );
+  const Error: FC<{ msg: string }> = ({ msg }) => {
+    return msg.length === 0 ? (
+      <Fragment></Fragment>
+    ) : (
+      <div className="mbot" style={{ color: "red" }}>
+        {msg}
+      </div>
+    );
+  };
 
   const borderStyle = (isValid: boolean, isLoading: boolean) => {
     if (isLoading) return { borderBottom: "1px solid #ccc" };
@@ -269,7 +250,6 @@ const ParserTxLookup: FC<Props> = ({
     <Fragment>
       <form className="flex col m px-1 center grow" onSubmit={onSubmit}>
         <div className="px mtop-1">Your Addresses:</div>
-
         <textarea
           rows={4}
           value={addresses}
@@ -329,7 +309,10 @@ const ParserTxLookup: FC<Props> = ({
             disabled={
               addressesCount.current !== 0 ||
               receivingAddressesCount.current !== 0 ||
-              startBlockCount.current !== 0
+              startBlockCount.current !== 0 ||
+              !addressesValid ||
+              !receivingAddressesValid ||
+              !startBlockValid
             }
           >
             Lookup
