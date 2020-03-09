@@ -1,13 +1,13 @@
 {
   "name": "web3_parser",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": "J Quinn",
   "license": "MIT",
   "scripts": {
     "dev": "webpack-dev-server --mode development --env.development",
     "build": "webpack --mode production --env.production",
-    "publish": "gh-pages -d dist",
-    "deploy": "build && publish"
+    "push": "gh-pages -d dist",
+    "deploy": "yarn build && yarn push"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.19",
