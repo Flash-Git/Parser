@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import {
   faInfoCircle,
   faTimesCircle,
@@ -24,7 +24,7 @@ const version = "0.1.0";
 const App: FC = () => (
   <AlertState>
     <Web3State>
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <Alerts />
         <Switch>
           <Route exact path="/" component={Home} />
