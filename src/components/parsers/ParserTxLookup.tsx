@@ -44,6 +44,11 @@ const ParserTxLookup: FC<Props> = ({
     false
   );
 
+  const [tokenAddresses, setTokenAddresses] = useState("");
+  const [tokenAddressesValid, setTokenAddressesValid] = useState(false);
+  const [tokenAddressesErrors, setTokenAddressesErrors] = useState("");
+  const [tokenAddressesLoading, setTokenAddressesLoading] = useState(false);
+
   const [startBlock, setStartBlock] = useState("9000000");
   const [startBlockDate, setStartBlockDate] = useState("");
   const [startBlockValid, setStartBlockValid] = useState(true);
