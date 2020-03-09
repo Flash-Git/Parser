@@ -24,7 +24,7 @@ const version = "0.1.0";
 const App: FC = () => (
   <AlertState>
     <Web3State>
-      <Router basename={process.env.PUBLIC_URL}>
+      <Router>
         <Alerts />
         <Switch>
           <Route exact path="/" component={Home} />
