@@ -51,7 +51,6 @@ module.exports = env => {
       new ForkTsCheckerWebpackPlugin({ eslint: true })
     ],
     devServer: {
-      publicPath: "/",
       hot: true,
       open: false,
       port: 3000,

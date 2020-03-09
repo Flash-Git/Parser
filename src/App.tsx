@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import {
   faInfoCircle,
   faTimesCircle,
