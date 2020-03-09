@@ -46,12 +46,12 @@ module.exports = env => {
         template: "./index.html"
       }),
       new webpack.DefinePlugin({
-        "process.env.development": !!(env && !env.production)
+        "process.env.development": !!(env && !env.production),
+        "process.env.PUBLIC_URL": JSON.stringify("/Parser")
       }),
       new ForkTsCheckerWebpackPlugin({ eslint: true })
     ],
     devServer: {
-      publicPath: "/",
       hot: true,
       open: false,
       port: 3000,
