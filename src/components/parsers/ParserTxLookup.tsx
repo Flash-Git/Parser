@@ -44,6 +44,11 @@ const ParserTxLookup: FC<Props> = ({
     false
   );
 
+  const [tokenAddresses, setTokenAddresses] = useState("");
+  const [tokenAddressesValid, setTokenAddressesValid] = useState(false);
+  const [tokenAddressesErrors, setTokenAddressesErrors] = useState("");
+  const [tokenAddressesLoading, setTokenAddressesLoading] = useState(false);
+
   const [startBlock, setStartBlock] = useState("9000000");
   const [startBlockDate, setStartBlockDate] = useState("");
   const [startBlockValid, setStartBlockValid] = useState(true);
@@ -61,6 +66,7 @@ const ParserTxLookup: FC<Props> = ({
    */
   const addressesCount = useRef(0);
   const receivingAddressesCount = useRef(0);
+  const tokenAddressesCount = useRef(0);
   const startBlockCount = useRef(0);
 
   /*
@@ -156,6 +162,22 @@ const ParserTxLookup: FC<Props> = ({
   }, [receivingAddresses, validateAddresses]);
 
   useEffect(() => {
+    const val = ++tokenAddressesCount.current;
+    setTimeout(async () => {
+      if (tokenAddressesCount.current !== val) return;
+      tokenAddressesCount.current = 0;
+      setTokenAddressesLoading(true);
+      const isValid = await validateAddresses(
+        tokenAddresses,
+        setTokenAddressesErrors,
+        true
+      );
+      setTokenAddressesLoading(false);
+      setTokenAddressesValid(isValid);
+    }, 700);
+  }, [tokenAddresses, validateAddresses]);
+
+  useEffect(() => {
     const val = ++startBlockCount.current;
     setTimeout(async () => {
       if (startBlockCount.current !== val) return;
@@ -180,9 +202,8 @@ const ParserTxLookup: FC<Props> = ({
    * Methods
    */
 
-  const getTransactions = async () => {
+  const getTransactions = async (addressList: string) => {
     let histories: TransactionResponse[] = [];
-    setTransactions([]);
 
     await Promise.all(
       splitAddresses(addresses).map(async address => {
@@ -200,19 +221,15 @@ const ParserTxLookup: FC<Props> = ({
     histories.splice(100);
 
     // If no receiving addresses are given get all transactions
-    if (receivingAddresses.length === 0) {
-      setTransactions(txs => [...txs, ...histories]);
-      return;
-    }
+    if (addressList.length === 0) return [];
 
     const filteredTxs = await histories.filter((tx: FixedTransactionResponse) =>
-      splitAddresses(receivingAddresses).some(
+      splitAddresses(addressList).some(
         add => add.toLowerCase() === tx.to?.toLowerCase()
       )
     );
 
-    setTransactions(txs => [...txs, ...filteredTxs]);
-    return;
+    return filteredTxs;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -223,7 +240,12 @@ const ParserTxLookup: FC<Props> = ({
     if (!addressesValid || !receivingAddressesValid || !startBlockValid) return;
 
     setLoadingData(true);
-    await getTransactions();
+
+    setTransactions([]);
+    const txsReceivingAdds = await getTransactions(receivingAddresses);
+    const txsTokenAdds = await getTransactions(tokenAddresses);
+    setTransactions([...txsReceivingAdds, ...txsTokenAdds]);
+
     setLoadingData(false);
   };
 
@@ -282,6 +304,22 @@ const ParserTxLookup: FC<Props> = ({
         />
         {receivingAddressesLoading && <div className="growing-border"></div>}
         {submitted && <Error msg={receivingAddressesErrors} />}
+        <div className="px mtop-1">Token Addresses:</div>
+        <textarea
+          rows={4}
+          value={tokenAddresses}
+          placeholder={addressPlaceHolder}
+          onChange={e => setTokenAddresses(e.target.value)}
+          style={{
+            resize: "vertical",
+            fontSize: "0.85rem",
+            maxWidth: "27em",
+            marginBottom: "0",
+            ...borderStyle(tokenAddressesValid, tokenAddressesLoading)
+          }}
+        />
+        {tokenAddressesLoading && <div className="growing-border"></div>}
+        {submitted && <Error msg={tokenAddressesErrors} />}
         <div className="px mtop-1">Starting Block:</div>
         <div className="flex row">
           <input
